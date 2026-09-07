@@ -1,0 +1,267 @@
+{
+  "neem": {
+    "common_name": "Neem",
+    "scientific_name": "Azadirachta indica",
+    "family": "Meliaceae",
+    "native_region": "Indian subcontinent",
+    "description": "Neem is a hardy evergreen or semi-evergreen tree widely associated with the Indian subcontinent.",
+    "characteristics": [
+      "Medium to large evergreen or semi-evergreen tree",
+      "Compound leaves with serrated leaflets",
+      "Small, fragrant white flowers",
+      "Produces small olive-like fruits"
+    ],
+    "habitat": "Warm tropical and subtropical environments, including dry and semi-arid regions.",
+    "ecological_importance": [
+      "Contributes to vegetation cover and local ecosystem functioning",
+      "Provides habitat and resources for various organisms",
+      "Well adapted to warm and relatively dry environments"
+    ],
+    "biodiversity_role": "Neem contributes to local plant diversity and provides ecological resources within the environments where it grows.",
+    "conservation_status": "Not currently considered a globally threatened species.",
+    "threats": [
+      "Habitat loss and urban expansion",
+      "Removal of mature trees",
+      "Changes in local land-use patterns"
+    ],
+    "conservation_actions": [
+      "Protect mature trees in natural and community spaces",
+      "Promote responsible planting and maintenance",
+      "Avoid unnecessary removal of established trees",
+      "Support native and locally appropriate vegetation"
+    ],
+    "interesting_facts": [
+      "Neem has a long history of traditional use in the Indian subcontinent.",
+      "Neem is well known for its ability to tolerate relatively dry conditions.",
+      "Different parts of the neem tree have been used traditionally for a variety of purposes."
+    ]
+  },
+
+  "tulsi": {
+    "common_name": "Tulsi",
+    "scientific_name": "Ocimum tenuiflorum",
+    "family": "Lamiaceae",
+    "native_region": "Indian subcontinent and parts of tropical Asia",
+    "description": "Tulsi, also known as holy basil, is an aromatic herb widely cultivated and associated with South Asian environments and traditions.",
+    "characteristics": [
+      "Aromatic herb with branching stems",
+      "Small green to purple leaves depending on variety",
+      "Small flowers arranged in elongated clusters",
+      "Strong characteristic fragrance"
+    ],
+    "habitat": "Warm tropical and subtropical environments, commonly grown in gardens and household spaces.",
+    "ecological_importance": [
+      "Contributes to plant diversity in cultivated and garden environments",
+      "Its flowers can provide resources for insects",
+      "Can be grown in small spaces and home gardens"
+    ],
+    "biodiversity_role": "Tulsi can contribute floral resources for insects and adds plant diversity to gardens and cultivated environments.",
+    "conservation_status": "Not generally considered a globally threatened species.",
+    "threats": [
+      "Loss of suitable growing spaces",
+      "Habitat and land-use changes",
+      "Poor maintenance of cultivated populations"
+    ],
+    "conservation_actions": [
+      "Maintain healthy plants in home and community gardens",
+      "Encourage responsible cultivation",
+      "Preserve locally appropriate plant diversity",
+      "Avoid unnecessary destruction of established plants"
+    ],
+    "interesting_facts": [
+      "Tulsi is commonly known as holy basil.",
+      "It has a long history of cultural and traditional significance in South Asia.",
+      "Its strong aroma comes from naturally occurring plant compounds."
+    ]
+  },
+
+  "aloe_vera": {
+    "common_name": "Aloe Vera",
+    "scientific_name": "Aloe vera",
+    "family": "Asphodelaceae",
+    "native_region": "Arabian Peninsula; widely cultivated in tropical and subtropical regions",
+    "description": "Aloe vera is a succulent plant recognized by its fleshy, pointed leaves and adaptation to relatively dry conditions.",
+    "characteristics": [
+      "Fleshy, pointed leaves arranged in a rosette",
+      "Leaves contain water-rich tissue",
+      "Green to grey-green leaf coloration",
+      "Produces tall flower stalks under suitable conditions"
+    ],
+    "habitat": "Dry tropical and subtropical environments, gardens, and cultivated landscapes.",
+    "ecological_importance": [
+      "Contributes to plant diversity in dry and cultivated environments",
+      "Its flowers can provide resources for pollinating organisms",
+      "Adapted to environments with limited water availability"
+    ],
+    "biodiversity_role": "Aloe vera contributes to plant diversity and can provide floral resources when flowering.",
+    "conservation_status": "Not generally considered a globally threatened species.",
+    "threats": [
+      "Habitat conversion",
+      "Unsustainable collection in some populations",
+      "Loss of suitable natural habitats"
+    ],
+    "conservation_actions": [
+      "Promote responsible cultivation",
+      "Avoid unnecessary collection from natural populations",
+      "Maintain suitable habitats where native aloe species occur",
+      "Support sustainable plant-use practices"
+    ],
+    "interesting_facts": [
+      "Aloe vera is a succulent adapted to storing water.",
+      "Its fleshy leaves help the plant survive periods of limited rainfall.",
+      "Aloe vera is widely cultivated in many parts of the world."
+    ]
+  },
+
+  "banyan": {
+    "common_name": "Banyan",
+    "scientific_name": "Ficus benghalensis",
+    "family": "Moraceae",
+    "native_region": "Indian subcontinent",
+    "description": "The banyan is a large fig tree known for its extensive crown and aerial roots that can develop into supporting structures.",
+    "characteristics": [
+      "Large spreading tree",
+      "Produces aerial roots from branches",
+      "Broad leaves with a leathery texture",
+      "Can develop an extensive canopy"
+    ],
+    "habitat": "Tropical and subtropical environments, including forests, open landscapes, and urban or village spaces.",
+    "ecological_importance": [
+      "Provides habitat and resources for many organisms",
+      "Fruits can serve as food for birds and other animals",
+      "Large trees can provide shade and contribute to local microhabitats"
+    ],
+    "biodiversity_role": "Fig trees can play an important ecological role by providing food resources and habitat for animals, particularly when fruiting.",
+    "conservation_status": "Not generally considered a globally threatened species.",
+    "threats": [
+      "Habitat loss",
+      "Removal of mature trees during development",
+      "Fragmentation of suitable habitats"
+    ],
+    "conservation_actions": [
+      "Protect mature banyan trees",
+      "Preserve trees during urban and infrastructure planning",
+      "Maintain surrounding habitat where possible",
+      "Promote awareness of the ecological value of mature trees"
+    ],
+    "interesting_facts": [
+      "The banyan can develop numerous aerial roots that become additional supporting structures.",
+      "A mature banyan can occupy a large area because of its spreading growth.",
+      "The banyan is the national tree of India."
+    ]
+  },
+
+  "hibiscus": {
+    "common_name": "Hibiscus",
+    "scientific_name": "Hibiscus rosa-sinensis",
+    "family": "Malvaceae",
+    "native_region": "Tropical Asia; widely cultivated in tropical and subtropical regions",
+    "description": "Hibiscus is a flowering shrub widely cultivated for its large and prominent flowers.",
+    "characteristics": [
+      "Evergreen or semi-evergreen shrub under suitable conditions",
+      "Large brightly colored flowers",
+      "Glossy green leaves",
+      "Flowers contain prominent reproductive structures"
+    ],
+    "habitat": "Tropical and subtropical gardens, landscapes, and cultivated environments.",
+    "ecological_importance": [
+      "Provides floral resources for visiting insects",
+      "Contributes to plant diversity in gardens and landscapes",
+      "Flowering plants can support local pollinator activity"
+    ],
+    "biodiversity_role": "Hibiscus can contribute floral resources to insects and increase plant diversity in cultivated landscapes.",
+    "conservation_status": "Not generally considered a globally threatened species.",
+    "threats": [
+      "Loss of cultivated green spaces",
+      "Pest and disease pressure",
+      "Poor maintenance and unsuitable growing conditions"
+    ],
+    "conservation_actions": [
+      "Maintain healthy flowering plants",
+      "Encourage diverse plantings in gardens",
+      "Use responsible plant-care practices",
+      "Support pollinator-friendly garden environments"
+    ],
+    "interesting_facts": [
+      "Hibiscus flowers are known for their large and prominent appearance.",
+      "Many hibiscus varieties are cultivated as ornamental plants.",
+      "Hibiscus can attract insects and other flower-visiting organisms."
+    ]
+  },
+
+  "rose": {
+    "common_name": "Rose",
+    "scientific_name": "Rosa spp.",
+    "family": "Rosaceae",
+    "native_region": "Temperate and subtropical regions of the Northern Hemisphere",
+    "description": "Rose refers to flowering plants in the genus Rosa, which includes numerous species and cultivated varieties.",
+    "characteristics": [
+      "Woody shrubs or climbing plants",
+      "Flowers with multiple petals",
+      "Leaves are generally compound and serrated",
+      "Many varieties possess thorns or prickles"
+    ],
+    "habitat": "Gardens, cultivated landscapes, temperate environments, and suitable natural habitats depending on the species.",
+    "ecological_importance": [
+      "Flowers provide nectar and pollen resources for visiting insects",
+      "Contributes to plant diversity in gardens and landscapes",
+      "Can support pollinator activity when suitable varieties are available"
+    ],
+    "biodiversity_role": "Rose plants can provide floral resources for insects and contribute to plant diversity in cultivated landscapes.",
+    "conservation_status": "Conservation status varies among individual Rosa species; cultivated roses should not be treated as representing a single conservation category.",
+    "threats": [
+      "Habitat loss affecting wild rose species",
+      "Pests and plant diseases",
+      "Loss of genetic diversity in some cultivated populations"
+    ],
+    "conservation_actions": [
+      "Protect wild rose habitats where applicable",
+      "Maintain genetic diversity in cultivated plants",
+      "Use responsible plant-care practices",
+      "Avoid unnecessary collection of wild plants"
+    ],
+    "interesting_facts": [
+      "The genus Rosa contains many species and thousands of cultivated varieties.",
+      "Rose hips, produced by some rose species after flowering, can provide food for wildlife.",
+      "Roses have been cultivated by humans for centuries."
+    ]
+  },
+
+  "sunflower": {
+    "common_name": "Sunflower",
+    "scientific_name": "Helianthus annuus",
+    "family": "Asteraceae",
+    "native_region": "North America",
+    "description": "Sunflower is an annual flowering plant recognized by its large flower head and tall upright growth.",
+    "characteristics": [
+      "Tall annual herbaceous plant",
+      "Large flower head with prominent central disk",
+      "Broad leaves with a rough texture",
+      "Produces seeds after flowering"
+    ],
+    "habitat": "Open fields, agricultural areas, gardens, and other sunny environments.",
+    "ecological_importance": [
+      "Flowers provide nectar and pollen resources for insects",
+      "Seeds can provide food for birds and other animals",
+      "Contributes to plant diversity in cultivated and naturalized environments"
+    ],
+    "biodiversity_role": "Sunflowers can support pollinating insects through their flowers and provide seed resources for birds and other organisms.",
+    "conservation_status": "The cultivated sunflower species is not generally considered globally threatened.",
+    "threats": [
+      "Loss of suitable open habitats",
+      "Pest and disease pressure",
+      "Reduction of floral diversity in intensively managed landscapes"
+    ],
+    "conservation_actions": [
+      "Maintain diverse flowering plants in gardens",
+      "Provide pesticide-conscious habitats for pollinators",
+      "Preserve suitable open spaces where appropriate",
+      "Encourage plant diversity in managed landscapes"
+    ],
+    "interesting_facts": [
+      "Sunflower flower heads are actually composed of many individual flowers.",
+      "Sunflower seeds are an important food and agricultural product.",
+      "Sunflowers are widely cultivated in many regions around the world."
+    ]
+  }
+}
