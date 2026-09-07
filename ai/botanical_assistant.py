@@ -5,6 +5,7 @@ This module provides:
 - plant retrieval
 - question classification
 - botanical context generation
+- conservation intelligence
 - prompt construction
 - grounded responses
 - interactive command-line usage
@@ -15,19 +16,25 @@ by the application layer without using the CLI.
 
 from retrieval import PlantKnowledgeBase
 from prompts import BotanicalPromptBuilder
+from conservation import ConservationIntelligence
 
 
 class BotanicalAssistant:
     """
     Main botanical intelligence component.
 
-    The assistant connects the structured knowledge base
-    with question classification and prompt engineering.
+    The assistant connects the structured botanical
+    knowledge base with question classification,
+    conservation intelligence, prompt engineering,
+    and grounded response generation.
     """
 
     def __init__(self):
 
         self.knowledge_base = PlantKnowledgeBase()
+
+        self.conservation = ConservationIntelligence()
+
         self.prompt_builder = BotanicalPromptBuilder()
 
     # --------------------------------------------------
@@ -137,6 +144,61 @@ class BotanicalAssistant:
         )
 
     # --------------------------------------------------
+    # CONSERVATION CONTEXT
+    # --------------------------------------------------
+
+    def get_conservation_context(self, plant_name):
+        """
+        Retrieve grounded conservation information
+        for the selected plant.
+
+        Conservation information is obtained from the
+        dedicated ConservationIntelligence layer.
+        """
+
+        return self.conservation.build_ai_context(
+            plant_name
+        )
+
+    # --------------------------------------------------
+    # COMBINED AI CONTEXT
+    # --------------------------------------------------
+
+    def build_ai_context(self, plant_name):
+        """
+        Build the complete grounded AI context.
+
+        The context combines:
+        - botanical knowledge
+        - conservation knowledge
+
+        Both are retrieved from the verified
+        knowledge base.
+        """
+
+        plant_context = self.retrieve_context(
+            plant_name
+        )
+
+        if plant_context is None:
+            return None
+
+        conservation_context = (
+            self.get_conservation_context(
+                plant_name
+            )
+        )
+
+        if conservation_context is None:
+            return plant_context
+
+        return (
+            plant_context
+            + "\n\n"
+            + conservation_context
+        )
+
+    # --------------------------------------------------
     # PROMPT CONSTRUCTION
     # --------------------------------------------------
 
@@ -157,7 +219,7 @@ class BotanicalAssistant:
         if plant is None:
             return None
 
-        context = self.knowledge_base.build_context(
+        context = self.build_ai_context(
             plant_name
         )
 
@@ -263,6 +325,40 @@ class BotanicalAssistant:
 
         if question_type == "conservation":
 
+            conservation_profile = (
+                self.conservation
+                .get_conservation_profile(
+                    plant["common_name"]
+                )
+            )
+
+            if conservation_profile is not None:
+
+                threats = "\n".join(
+                    f"- {item}"
+                    for item in
+                    conservation_profile[
+                        "threats"
+                    ]
+                )
+
+                actions = "\n".join(
+                    f"- {item}"
+                    for item in
+                    conservation_profile[
+                        "conservation_actions"
+                    ]
+                )
+
+                return (
+                    f"Conservation status:\n"
+                    f"{conservation_profile['conservation_status']}\n\n"
+                    f"Potential threats:\n"
+                    f"{threats}\n\n"
+                    f"Conservation actions:\n"
+                    f"{actions}"
+                )
+
             threats = "\n".join(
                 f"- {item}"
                 for item in plant.get(
@@ -338,16 +434,22 @@ class BotanicalAssistant:
     # COMPLETE ANSWER PIPELINE
     # --------------------------------------------------
 
-    def answer(self, plant_name, question):
+    def answer(
+        self,
+        plant_name,
+        question
+    ):
         """
         Execute the complete grounded AI pipeline.
 
         Pipeline:
             1. Plant retrieval
             2. Question classification
-            3. Context construction
-            4. Prompt construction
-            5. Grounded response generation
+            3. Botanical context construction
+            4. Conservation context construction
+            5. Combined grounded context
+            6. Prompt construction
+            7. Grounded response generation
         """
 
         pipeline = self.build_grounded_prompt(
@@ -377,8 +479,12 @@ class BotanicalAssistant:
 
         return {
             "status": "success",
-            "plant": pipeline["plant"]["common_name"],
-            "question_type": pipeline["question_type"],
+            "plant": pipeline["plant"][
+                "common_name"
+            ],
+            "question_type": pipeline[
+                "question_type"
+            ],
             "answer": response,
             "grounded": True,
             "prompt": pipeline["prompt"],
@@ -391,11 +497,11 @@ class BotanicalAssistant:
 
     def get_context(self, plant_name):
         """
-        Return verified botanical context for downstream
-        application or AI components.
+        Return the complete verified botanical and
+        conservation context for downstream components.
         """
 
-        return self.knowledge_base.build_context(
+        return self.build_ai_context(
             plant_name
         )
 
@@ -441,7 +547,9 @@ def run_interactive_assistant():
         plants,
         start=1
     ):
-        print(f"{index}. {plant}")
+        print(
+            f"{index}. {plant}"
+        )
 
     print()
     print(
