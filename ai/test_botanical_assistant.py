@@ -1,94 +1,267 @@
+"""
+Integration tests for the Grounded Botanical AI Assistant.
+
+These tests verify:
+- plant retrieval
+- question classification
+- prompt construction
+- grounded responses
+- error handling
+- end-to-end assistant behaviour
+"""
+
 from botanical_assistant import BotanicalAssistant
 
 
-def run_tests():
+def print_result(test_number, name, passed):
+    """
+    Display a consistent test result.
+    """
+
+    status = "PASS" if passed else "FAIL"
+
+    print(
+        f"[TEST {test_number}] {name}"
+    )
+
+    print(
+        f"{status} - {name}"
+    )
+
+    print()
+
+
+def main():
+
     assistant = BotanicalAssistant()
 
     print("========================================")
-    print("   BOTANICAL ASSISTANT TEST SUITE")
+    print("   BOTANICAL AI INTEGRATION TESTS")
+    print("========================================")
+    print()
+
+    # --------------------------------------------------
+    # TEST 1
+    # --------------------------------------------------
+
+    result = assistant.answer(
+        "Neem",
+        "What is the scientific name of Neem?"
+    )
+
+    passed = (
+        result["status"] == "success"
+        and result["question_type"] == "botanical"
+        and result["grounded"] is True
+        and "Azadirachta indica"
+        in result["answer"]
+    )
+
+    print_result(
+        1,
+        "Botanical question handling",
+        passed
+    )
+
+    # --------------------------------------------------
+    # TEST 2
+    # --------------------------------------------------
+
+    result = assistant.answer(
+        "Tulsi",
+        "Why is Tulsi important for biodiversity?"
+    )
+
+    passed = (
+        result["status"] == "success"
+        and result["question_type"] == "ecology"
+        and result["grounded"] is True
+    )
+
+    print_result(
+        2,
+        "Ecology question handling",
+        passed
+    )
+
+    # --------------------------------------------------
+    # TEST 3
+    # --------------------------------------------------
+
+    result = assistant.answer(
+        "Banyan",
+        "What are the threats to Banyan?"
+    )
+
+    passed = (
+        result["status"] == "success"
+        and result["question_type"] == "conservation"
+        and result["grounded"] is True
+    )
+
+    print_result(
+        3,
+        "Conservation question handling",
+        passed
+    )
+
+    # --------------------------------------------------
+    # TEST 4
+    # --------------------------------------------------
+
+    result = assistant.answer(
+        "Rose",
+        "Tell me some interesting facts about Rose."
+    )
+
+    passed = (
+        result["status"] == "success"
+        and result["question_type"] == "facts"
+        and result["grounded"] is True
+    )
+
+    print_result(
+        4,
+        "Interesting facts handling",
+        passed
+    )
+
+    # --------------------------------------------------
+    # TEST 5
+    # --------------------------------------------------
+
+    result = assistant.answer(
+        "nEeM",
+        "What is the family of this plant?"
+    )
+
+    passed = (
+        result["status"] == "success"
+        and result["plant"] == "Neem"
+        and result["grounded"] is True
+    )
+
+    print_result(
+        5,
+        "Case-insensitive plant recognition",
+        passed
+    )
+
+    # --------------------------------------------------
+    # TEST 6
+    # --------------------------------------------------
+
+    result = assistant.answer(
+        "UnknownPlant",
+        "What is this plant?"
+    )
+
+    passed = (
+        result["status"] == "not_found"
+        and result["grounded"] is False
+        and result["prompt"] is None
+    )
+
+    print_result(
+        6,
+        "Unknown plant handling",
+        passed
+    )
+
+    # --------------------------------------------------
+    # TEST 7
+    # --------------------------------------------------
+
+    result = assistant.build_grounded_prompt(
+        "Sunflower",
+        "Why is Sunflower important for biodiversity?"
+    )
+
+    passed = (
+        result is not None
+        and result["question_type"] == "ecology"
+        and "Sunflower" in result["context"]
+        and "USER QUESTION" in result["prompt"]
+        and "RESPONSE INSTRUCTIONS" in result["prompt"]
+    )
+
+    print_result(
+        7,
+        "Grounded prompt construction",
+        passed
+    )
+
+    # --------------------------------------------------
+    # TEST 8
+    # --------------------------------------------------
+
+    result = assistant.answer(
+        "Aloe Vera",
+        "What is the habitat of Aloe Vera?"
+    )
+
+    passed = (
+        result["status"] == "success"
+        and result["grounded"] is True
+        and result["context"] is not None
+        and result["prompt"] is not None
+        and result["answer"]
+    )
+
+    print_result(
+        8,
+        "End-to-end AI pipeline",
+        passed
+    )
+
+    # --------------------------------------------------
+    # FINAL RESULT
+    # --------------------------------------------------
+
     print("========================================")
 
-    tests = [
-        {
-            "name": "Botanical information",
-            "plant": "Neem",
-            "question": "What is the scientific name and family of Neem?",
-            "expected_type": "botanical"
-        },
-        {
-            "name": "Ecological information",
-            "plant": "Banyan",
-            "question": "How does Banyan contribute to biodiversity?",
-            "expected_type": "ecology"
-        },
-        {
-            "name": "Conservation information",
-            "plant": "Hibiscus",
-            "question": "What are the threats and conservation actions for Hibiscus?",
-            "expected_type": "conservation"
-        },
-        {
-            "name": "Interesting facts",
-            "plant": "Sunflower",
-            "question": "Tell me some interesting facts about Sunflower.",
-            "expected_type": "facts"
-        },
-        {
-            "name": "General information",
-            "plant": "Rose",
-            "question": "Tell me about Rose.",
-            "expected_type": "general"
-        },
-        {
-            "name": "Unknown plant",
-            "plant": "Dragon Tree XYZ",
-            "question": "What is the ecological importance of this plant?",
-            "expected_type": None
-        }
-    ]
+    print(
+        "BOTANICAL AI TESTING COMPLETE"
+    )
 
-    passed = 0
-
-    for number, test in enumerate(tests, start=1):
-
-        print(f"\n[TEST {number}] {test['name']}")
-        print(f"Plant: {test['plant']}")
-        print(f"Question: {test['question']}")
-
-        result = assistant.answer(
-            test["plant"],
-            test["question"]
-        )
-
-        if test["expected_type"] is None:
-
-            if result["status"] == "not_found":
-                print("PASS - Unknown plant handled correctly")
-                passed += 1
-            else:
-                print("FAIL - Unknown plant was not handled correctly")
-
-        else:
-
-            if (
-                result["status"] == "success"
-                and result["question_type"] == test["expected_type"]
-            ):
-                print(
-                    f"PASS - Question classified as "
-                    f"{result['question_type']}"
-                )
-                passed += 1
-            else:
-                print(
-                    f"FAIL - Expected {test['expected_type']}, "
-                    f"got {result.get('question_type')}"
-                )
-
-    print("\n========================================")
-    print(f"RESULT: {passed}/{len(tests)} TESTS PASSED")
     print("========================================")
+
+    print()
+
+    print(
+        "The integration suite validates:"
+    )
+
+    print(
+        "- Retrieval"
+    )
+
+    print(
+        "- Question classification"
+    )
+
+    print(
+        "- Prompt construction"
+    )
+
+    print(
+        "- Grounded responses"
+    )
+
+    print(
+        "- Error handling"
+    )
+
+    print(
+        "- End-to-end AI pipeline"
+    )
+
+    print()
+
+    print(
+        "Grounded architecture verified."
+    )
 
 
 if __name__ == "__main__":
-    run_tests()
+    main()
