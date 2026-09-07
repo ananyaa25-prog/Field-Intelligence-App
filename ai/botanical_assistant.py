@@ -1,32 +1,46 @@
 """
 Grounded Botanical AI Assistant.
 
-This module provides:
-- plant retrieval
-- question classification
-- botanical context generation
-- conservation intelligence
-- prompt construction
-- grounded responses
-- interactive command-line usage
+This module provides the complete botanical intelligence pipeline:
 
-The core BotanicalAssistant class can also be imported
-by the application layer without using the CLI.
+    Plant Retrieval
+          ↓
+    Question Classification
+          ↓
+    Evidence Collection
+          ↓
+    Confidence Evaluation
+          ↓
+    Grounded Prompt Construction
+          ↓
+    Grounded Response Generation
+          ↓
+    Application-Ready Result
+
+The assistant is designed so that the application layer can
+import BotanicalAssistant without triggering the CLI.
+
+All factual responses are grounded in the structured botanical
+and conservation knowledge bases.
 """
 
 from retrieval import PlantKnowledgeBase
 from prompts import BotanicalPromptBuilder
 from conservation import ConservationIntelligence
+from evidence import BotanicalEvidence
 
 
 class BotanicalAssistant:
     """
     Main botanical intelligence component.
 
-    The assistant connects the structured botanical
-    knowledge base with question classification,
-    conservation intelligence, prompt engineering,
-    and grounded response generation.
+    Connects:
+    - botanical knowledge
+    - conservation knowledge
+    - evidence collection
+    - confidence evaluation
+    - prompt engineering
+    - grounded response generation
     """
 
     def __init__(self):
@@ -35,11 +49,13 @@ class BotanicalAssistant:
 
         self.conservation = ConservationIntelligence()
 
+        self.evidence = BotanicalEvidence()
+
         self.prompt_builder = BotanicalPromptBuilder()
 
-    # --------------------------------------------------
+    # ==================================================
     # QUESTION CLASSIFICATION
-    # --------------------------------------------------
+    # ==================================================
 
     def classify_question(self, question):
         """
@@ -66,7 +82,8 @@ class BotanicalAssistant:
             "threats",
             "endangered",
             "save",
-            "preserve"
+            "preserve",
+            "preservation"
         ]
 
         ecology_keywords = [
@@ -77,7 +94,8 @@ class BotanicalAssistant:
             "habitat",
             "ecosystem",
             "wildlife",
-            "pollinator"
+            "pollinator",
+            "pollination"
         ]
 
         botanical_keywords = [
@@ -85,16 +103,21 @@ class BotanicalAssistant:
             "family",
             "characteristic",
             "characteristics",
+            "feature",
             "features",
             "description",
             "identify",
-            "what is"
+            "identification",
+            "what is",
+            "native region"
         ]
 
         fact_keywords = [
             "fact",
             "facts",
-            "interesting"
+            "interesting",
+            "interesting fact",
+            "did you know"
         ]
 
         if any(
@@ -123,9 +146,9 @@ class BotanicalAssistant:
 
         return "general"
 
-    # --------------------------------------------------
-    # RETRIEVAL
-    # --------------------------------------------------
+    # ==================================================
+    # PLANT RETRIEVAL
+    # ==================================================
 
     def retrieve_context(self, plant_name):
         """
@@ -143,64 +166,49 @@ class BotanicalAssistant:
             plant_name
         )
 
-    # --------------------------------------------------
-    # CONSERVATION CONTEXT
-    # --------------------------------------------------
+    # ==================================================
+    # EVIDENCE COLLECTION
+    # ==================================================
 
-    def get_conservation_context(self, plant_name):
+    def collect_evidence(self, plant_name, question_type):
         """
-        Retrieve grounded conservation information
-        for the selected plant.
+        Collect grounded evidence for the selected plant.
 
-        Conservation information is obtained from the
-        dedicated ConservationIntelligence layer.
-        """
-
-        return self.conservation.build_ai_context(
-            plant_name
-        )
-
-    # --------------------------------------------------
-    # COMBINED AI CONTEXT
-    # --------------------------------------------------
-
-    def build_ai_context(self, plant_name):
-        """
-        Build the complete grounded AI context.
-
-        The context combines:
-        - botanical knowledge
-        - conservation knowledge
-
-        Both are retrieved from the verified
-        knowledge base.
+        The evidence layer determines:
+        - whether sufficient evidence exists
+        - which knowledge sources were used
+        - which fields are relevant
+        - confidence level
+        - confidence score
+        - confidence reasoning
         """
 
-        plant_context = self.retrieve_context(
-            plant_name
-        )
+        try:
 
-        if plant_context is None:
+            return self.evidence.collect_evidence(
+                plant_name,
+                question_type
+            )
+
+        except TypeError:
+
+            try:
+
+                return self.evidence.collect_evidence(
+                    plant_name
+                )
+
+            except Exception:
+
+                return None
+
+        except Exception:
+
             return None
 
-        conservation_context = (
-            self.get_conservation_context(
-                plant_name
-            )
-        )
-
-        if conservation_context is None:
-            return plant_context
-
-        return (
-            plant_context
-            + "\n\n"
-            + conservation_context
-        )
-
-    # --------------------------------------------------
+    # ==================================================
     # PROMPT CONSTRUCTION
-    # --------------------------------------------------
+    # ==================================================
 
     def build_grounded_prompt(
         self,
@@ -208,8 +216,8 @@ class BotanicalAssistant:
         question
     ):
         """
-        Retrieve plant information and construct a
-        category-specific grounded AI prompt.
+        Retrieve plant information, collect evidence,
+        classify the question and construct a grounded prompt.
         """
 
         plant = self.knowledge_base.get_plant(
@@ -219,12 +227,17 @@ class BotanicalAssistant:
         if plant is None:
             return None
 
-        context = self.build_ai_context(
+        context = self.knowledge_base.build_context(
             plant_name
         )
 
         question_type = self.classify_question(
             question
+        )
+
+        evidence = self.collect_evidence(
+            plant_name,
+            question_type
         )
 
         if question_type == "ecology":
@@ -282,12 +295,13 @@ class BotanicalAssistant:
             "plant": plant,
             "question_type": question_type,
             "context": context,
+            "evidence": evidence,
             "prompt": prompt
         }
 
-    # --------------------------------------------------
-    # GROUNDED RESPONSE
-    # --------------------------------------------------
+    # ==================================================
+    # GROUNDED RESPONSE GENERATION
+    # ==================================================
 
     def generate_grounded_response(
         self,
@@ -295,11 +309,10 @@ class BotanicalAssistant:
         question_type
     ):
         """
-        Generate a response directly from the verified
-        botanical knowledge base.
+        Generate a deterministic response directly from
+        the verified botanical knowledge base.
 
-        This deterministic response layer is used until
-        an external LLM is connected.
+        This layer intentionally avoids inventing information.
         """
 
         if question_type == "ecology":
@@ -315,49 +328,18 @@ class BotanicalAssistant:
             return (
                 f"{plant['common_name']} plays a role "
                 f"in its local environment.\n\n"
+
                 f"Habitat:\n"
                 f"{plant['habitat']}\n\n"
+
                 f"Ecological importance:\n"
                 f"{ecological_importance}\n\n"
+
                 f"Biodiversity role:\n"
                 f"{plant['biodiversity_role']}"
             )
 
         if question_type == "conservation":
-
-            conservation_profile = (
-                self.conservation
-                .get_conservation_profile(
-                    plant["common_name"]
-                )
-            )
-
-            if conservation_profile is not None:
-
-                threats = "\n".join(
-                    f"- {item}"
-                    for item in
-                    conservation_profile[
-                        "threats"
-                    ]
-                )
-
-                actions = "\n".join(
-                    f"- {item}"
-                    for item in
-                    conservation_profile[
-                        "conservation_actions"
-                    ]
-                )
-
-                return (
-                    f"Conservation status:\n"
-                    f"{conservation_profile['conservation_status']}\n\n"
-                    f"Potential threats:\n"
-                    f"{threats}\n\n"
-                    f"Conservation actions:\n"
-                    f"{actions}"
-                )
 
             threats = "\n".join(
                 f"- {item}"
@@ -378,8 +360,10 @@ class BotanicalAssistant:
             return (
                 f"Conservation status:\n"
                 f"{plant['conservation_status']}\n\n"
+
                 f"Potential threats:\n"
                 f"{threats}\n\n"
+
                 f"Conservation actions:\n"
                 f"{actions}"
             )
@@ -398,7 +382,9 @@ class BotanicalAssistant:
                 f"{plant['common_name']} "
                 f"({plant['scientific_name']}) belongs "
                 f"to the {plant['family']} family.\n\n"
+
                 f"{plant['description']}\n\n"
+
                 f"Key characteristics:\n"
                 f"{characteristics}"
             )
@@ -423,16 +409,19 @@ class BotanicalAssistant:
             f"{plant['common_name']} "
             f"({plant['scientific_name']}) belongs "
             f"to the {plant['family']} family.\n\n"
+
             f"{plant['description']}\n\n"
+
             f"Habitat:\n"
             f"{plant['habitat']}\n\n"
+
             f"Conservation status:\n"
             f"{plant['conservation_status']}"
         )
 
-    # --------------------------------------------------
-    # COMPLETE ANSWER PIPELINE
-    # --------------------------------------------------
+    # ==================================================
+    # COMPLETE AI PIPELINE
+    # ==================================================
 
     def answer(
         self,
@@ -443,19 +432,25 @@ class BotanicalAssistant:
         Execute the complete grounded AI pipeline.
 
         Pipeline:
-            1. Plant retrieval
-            2. Question classification
-            3. Botanical context construction
-            4. Conservation context construction
-            5. Combined grounded context
-            6. Prompt construction
-            7. Grounded response generation
+
+        1. Plant retrieval
+        2. Question classification
+        3. Evidence collection
+        4. Confidence evaluation
+        5. Context construction
+        6. Grounded prompt construction
+        7. Grounded response generation
+        8. Application-ready result
         """
 
         pipeline = self.build_grounded_prompt(
             plant_name,
             question
         )
+
+        # ----------------------------------------------
+        # UNKNOWN PLANT
+        # ----------------------------------------------
 
         if pipeline is None:
 
@@ -468,42 +463,148 @@ class BotanicalAssistant:
                     "in the botanical knowledge base."
                 ),
                 "grounded": False,
+                "evidence": None,
+                "confidence": {
+                    "level": "none",
+                    "score": 0.0,
+                    "reason": "Plant was not found."
+                },
                 "prompt": None,
                 "context": None
             }
+
+        # ----------------------------------------------
+        # GROUNDED RESPONSE
+        # ----------------------------------------------
 
         response = self.generate_grounded_response(
             pipeline["plant"],
             pipeline["question_type"]
         )
 
+        # ----------------------------------------------
+        # EVIDENCE
+        # ----------------------------------------------
+
+        evidence = pipeline.get(
+            "evidence"
+        )
+
+        # ----------------------------------------------
+        # CONFIDENCE
+        # ----------------------------------------------
+
+        confidence = {
+            "level": "unknown",
+            "score": 0.0,
+            "reason": "Confidence information unavailable."
+        }
+
+        if evidence:
+
+            if isinstance(evidence, dict):
+
+                if "confidence" in evidence:
+
+                    confidence = evidence[
+                        "confidence"
+                    ]
+
+                elif "grounding" in evidence:
+
+                    grounding = evidence[
+                        "grounding"
+                    ]
+
+                    if isinstance(
+                        grounding,
+                        dict
+                    ):
+
+                        confidence = grounding.get(
+                            "confidence",
+                            confidence
+                        )
+
+        # ----------------------------------------------
+        # FINAL RESULT
+        # ----------------------------------------------
+
         return {
             "status": "success",
-            "plant": pipeline["plant"][
+
+            "plant": pipeline[
+                "plant"
+            ][
                 "common_name"
             ],
+
             "question_type": pipeline[
                 "question_type"
             ],
+
             "answer": response,
+
             "grounded": True,
-            "prompt": pipeline["prompt"],
-            "context": pipeline["context"]
+
+            "evidence": evidence,
+
+            "confidence": confidence,
+
+            "prompt": pipeline[
+                "prompt"
+            ],
+
+            "context": pipeline[
+                "context"
+            ]
         }
 
-    # --------------------------------------------------
+    # ==================================================
     # CONTEXT ACCESS
-    # --------------------------------------------------
+    # ==================================================
 
-    def get_context(self, plant_name):
+    def get_context(
+        self,
+        plant_name
+    ):
         """
-        Return the complete verified botanical and
-        conservation context for downstream components.
+        Return verified botanical context for downstream
+        application or AI components.
         """
 
-        return self.build_ai_context(
+        return self.knowledge_base.build_context(
             plant_name
         )
+
+    # ==================================================
+    # EVIDENCE REPORT
+    # ==================================================
+
+    def get_evidence_report(
+        self,
+        plant_name,
+        question
+    ):
+        """
+        Return the evidence and confidence report for
+        a specific botanical question.
+        """
+
+        question_type = self.classify_question(
+            question
+        )
+
+        evidence = self.collect_evidence(
+            plant_name,
+            question_type
+        )
+
+        return {
+            "plant": plant_name,
+            "question_type": question_type,
+            "evidence": evidence
+        }
 
 
 # ======================================================
@@ -512,11 +613,15 @@ class BotanicalAssistant:
 
 def run_interactive_assistant():
     """
-    Run the Botanical Assistant interactively.
+    Run the Botanical Intelligence Assistant interactively.
 
-    This function is intentionally separate from the
-    BotanicalAssistant class so that application code
-    can import the class without triggering input().
+    The CLI demonstrates:
+    - plant selection
+    - question classification
+    - grounded answers
+    - evidence availability
+    - confidence
+    - safe error handling
     """
 
     assistant = BotanicalAssistant()
@@ -527,6 +632,7 @@ def run_interactive_assistant():
     print("========================================")
 
     print()
+
     print(
         "Welcome to the Botanical Intelligence Assistant."
     )
@@ -537,21 +643,28 @@ def run_interactive_assistant():
     )
 
     print()
+
     print("----------------------------------------")
     print("AVAILABLE PLANTS")
     print("----------------------------------------")
 
-    plants = assistant.knowledge_base.list_plants()
+    plants = (
+        assistant
+        .knowledge_base
+        .list_plants()
+    )
 
     for index, plant in enumerate(
         plants,
         start=1
     ):
+
         print(
             f"{index}. {plant}"
         )
 
     print()
+
     print(
         "Type 'exit' at any time to quit."
     )
@@ -559,6 +672,7 @@ def run_interactive_assistant():
     while True:
 
         print()
+
         print("----------------------------------------")
 
         plant_name = input(
@@ -568,6 +682,7 @@ def run_interactive_assistant():
         if plant_name.lower() == "exit":
 
             print()
+
             print(
                 "Thank you for using the "
                 "Botanical Intelligence Assistant."
@@ -583,25 +698,32 @@ def run_interactive_assistant():
 
             continue
 
-        plant = assistant.knowledge_base.get_plant(
-            plant_name
+        plant = (
+            assistant
+            .knowledge_base
+            .get_plant(
+                plant_name
+            )
         )
 
         if plant is None:
 
             print()
+
             print(
-                f"Plant '{plant_name}' was not found."
+                f"Plant '{plant_name}' "
+                "was not found."
             )
 
             print(
-                "Please choose a plant from the "
-                "available list."
+                "Please choose a plant from "
+                "the available list."
             )
 
             continue
 
         print()
+
         print(
             f"Selected plant: "
             f"{plant['common_name']}"
@@ -621,6 +743,7 @@ def run_interactive_assistant():
         if question.lower() == "exit":
 
             print()
+
             print(
                 "Thank you for using the "
                 "Botanical Intelligence Assistant."
@@ -642,6 +765,7 @@ def run_interactive_assistant():
         )
 
         print()
+
         print("----------------------------------------")
         print("AI ANALYSIS")
         print("----------------------------------------")
@@ -656,7 +780,23 @@ def run_interactive_assistant():
             f"{result['grounded']}"
         )
 
+        confidence = result.get(
+            "confidence",
+            {}
+        )
+
+        print(
+            f"Confidence level: "
+            f"{confidence.get('level', 'unknown')}"
+        )
+
+        print(
+            f"Confidence score: "
+            f"{confidence.get('score', 0.0)}"
+        )
+
         print()
+
         print("ANSWER")
         print("----------------------------------------")
 
@@ -665,7 +805,13 @@ def run_interactive_assistant():
         )
 
         print()
+
         print("----------------------------------------")
+
+        print(
+            "Evidence available: "
+            f"{result.get('evidence') is not None}"
+        )
 
         print(
             "The response was generated from "
