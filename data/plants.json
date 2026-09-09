@@ -189,79 +189,79 @@
     ]
   },
 
-  "rose": {
-    "common_name": "Rose",
-    "scientific_name": "Rosa spp.",
-    "family": "Rosaceae",
-    "native_region": "Temperate and subtropical regions of the Northern Hemisphere",
-    "description": "Rose refers to flowering plants in the genus Rosa, which includes numerous species and cultivated varieties.",
+  "brahmi": {
+    "common_name": "Brahmi",
+    "scientific_name": "Bacopa monnieri",
+    "family": "Plantaginaceae",
+    "native_region": "Tropical and subtropical regions of Asia, Africa, Australia, and the Americas",
+    "description": "Brahmi is a small, creeping herb commonly found in wet and marshy environments and widely cultivated in parts of South Asia.",
     "characteristics": [
-      "Woody shrubs or climbing plants",
-      "Flowers with multiple petals",
-      "Leaves are generally compound and serrated",
-      "Many varieties possess thorns or prickles"
+      "Small creeping or spreading herb",
+      "Fleshy green leaves",
+      "Small white flowers with purple or yellow markings",
+      "Stems can root at the nodes"
     ],
-    "habitat": "Gardens, cultivated landscapes, temperate environments, and suitable natural habitats depending on the species.",
+    "habitat": "Wetlands, marshes, riverbanks, ponds, and other moist environments.",
     "ecological_importance": [
-      "Flowers provide nectar and pollen resources for visiting insects",
-      "Contributes to plant diversity in gardens and landscapes",
-      "Can support pollinator activity when suitable varieties are available"
+      "Contributes to plant diversity in wet environments",
+      "Provides vegetation cover in moist habitats",
+      "Its flowers can provide resources for visiting insects"
     ],
-    "biodiversity_role": "Rose plants can provide floral resources for insects and contribute to plant diversity in cultivated landscapes.",
-    "conservation_status": "Conservation status varies among individual Rosa species; cultivated roses should not be treated as representing a single conservation category.",
+    "biodiversity_role": "Brahmi contributes to plant diversity in wet habitats and can provide floral resources for insects.",
+    "conservation_status": "Not generally considered a globally threatened species.",
     "threats": [
-      "Habitat loss affecting wild rose species",
-      "Pests and plant diseases",
-      "Loss of genetic diversity in some cultivated populations"
+      "Wetland destruction",
+      "Water pollution",
+      "Loss of suitable moist habitats"
     ],
     "conservation_actions": [
-      "Protect wild rose habitats where applicable",
-      "Maintain genetic diversity in cultivated plants",
-      "Use responsible plant-care practices",
-      "Avoid unnecessary collection of wild plants"
+      "Protect wetland and marsh habitats",
+      "Reduce pollution in freshwater environments",
+      "Promote responsible cultivation",
+      "Avoid unnecessary removal from natural habitats"
     ],
     "interesting_facts": [
-      "The genus Rosa contains many species and thousands of cultivated varieties.",
-      "Rose hips, produced by some rose species after flowering, can provide food for wildlife.",
-      "Roses have been cultivated by humans for centuries."
+      "Brahmi is also commonly known as water hyssop.",
+      "It is adapted to growing in wet and waterlogged environments.",
+      "Brahmi has a long history of traditional use in South Asia."
     ]
   },
 
-  "sunflower": {
-    "common_name": "Sunflower",
-    "scientific_name": "Helianthus annuus",
-    "family": "Asteraceae",
-    "native_region": "North America",
-    "description": "Sunflower is an annual flowering plant recognized by its large flower head and tall upright growth.",
+  "sandalwood": {
+    "common_name": "Sandalwood",
+    "scientific_name": "Santalum album",
+    "family": "Santalaceae",
+    "native_region": "Indian subcontinent and parts of Southeast Asia",
+    "description": "Sandalwood is a small to medium-sized evergreen tree known for its fragrant heartwood and aromatic properties.",
     "characteristics": [
-      "Tall annual herbaceous plant",
-      "Large flower head with prominent central disk",
-      "Broad leaves with a rough texture",
-      "Produces seeds after flowering"
+      "Small to medium-sized evergreen tree",
+      "Smooth grey to brown bark",
+      "Simple oval-shaped leaves",
+      "Fragrant heartwood develops as the tree matures"
     ],
-    "habitat": "Open fields, agricultural areas, gardens, and other sunny environments.",
+    "habitat": "Tropical and subtropical forests, dry woodlands, and cultivated areas with suitable conditions.",
     "ecological_importance": [
-      "Flowers provide nectar and pollen resources for insects",
-      "Seeds can provide food for birds and other animals",
-      "Contributes to plant diversity in cultivated and naturalized environments"
+      "Contributes to plant diversity in forest ecosystems",
+      "Provides habitat and resources for various organisms",
+      "Participates in ecological interactions with neighboring plants"
     ],
-    "biodiversity_role": "Sunflowers can support pollinating insects through their flowers and provide seed resources for birds and other organisms.",
-    "conservation_status": "The cultivated sunflower species is not generally considered globally threatened.",
+    "biodiversity_role": "Sandalwood contributes to forest plant diversity and provides ecological resources within its natural and cultivated habitats.",
+    "conservation_status": "Wild populations have faced pressure from overharvesting and habitat loss.",
     "threats": [
-      "Loss of suitable open habitats",
-      "Pest and disease pressure",
-      "Reduction of floral diversity in intensively managed landscapes"
+      "Illegal harvesting",
+      "Overexploitation for fragrant heartwood",
+      "Habitat loss and land-use changes"
     ],
     "conservation_actions": [
-      "Maintain diverse flowering plants in gardens",
-      "Provide pesticide-conscious habitats for pollinators",
-      "Preserve suitable open spaces where appropriate",
-      "Encourage plant diversity in managed landscapes"
+      "Protect natural sandalwood populations",
+      "Prevent illegal harvesting",
+      "Promote responsible cultivation",
+      "Support sustainable management of sandalwood resources"
     ],
     "interesting_facts": [
-      "Sunflower flower heads are actually composed of many individual flowers.",
-      "Sunflower seeds are an important food and agricultural product.",
-      "Sunflowers are widely cultivated in many regions around the world."
+      "Sandalwood is valued for the distinctive fragrance of its heartwood.",
+      "Sandalwood trees are traditionally associated with India and South Asia.",
+      "Santalum album is a hemiparasitic plant and obtains some resources through connections with other plants."
     ]
   }
 }
