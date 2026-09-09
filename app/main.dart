@@ -22,6 +22,58 @@ class PlantInfo {
 }
 
 // ================================================================
+// VERIFIED PLANT DATA FOR SPECIES COMPARISON
+//
+// This is intentionally kept in main.dart so the comparison feature
+// does not require another JSON modification.
+// ================================================================
+
+final Map<String, Map<String, String>> plantComparisonData = {
+  'Tulasi': {
+    'scientific': 'Ocimum tenuiflorum',
+    'family': 'Lamiaceae',
+    'habitat': 'Warm tropical and subtropical environments',
+    'conservation': 'Not currently considered globally threatened',
+  },
+  'Neem': {
+    'scientific': 'Azadirachta indica',
+    'family': 'Meliaceae',
+    'habitat': 'Tropical and subtropical regions',
+    'conservation': 'Not currently considered globally threatened',
+  },
+  'Banyan': {
+    'scientific': 'Ficus benghalensis',
+    'family': 'Moraceae',
+    'habitat': 'Tropical and subtropical environments',
+    'conservation': 'Not currently considered globally threatened',
+  },
+  'Hibiscus': {
+    'scientific': 'Hibiscus rosa-sinensis',
+    'family': 'Malvaceae',
+    'habitat': 'Warm tropical and subtropical environments',
+    'conservation': 'Not currently considered globally threatened',
+  },
+  'Rose': {
+    'scientific': 'Rosa spp.',
+    'family': 'Rosaceae',
+    'habitat': 'Gardens and temperate to subtropical environments',
+    'conservation': 'Varies by species',
+  },
+  'Aloe Vera': {
+    'scientific': 'Aloe vera',
+    'family': 'Asphodelaceae',
+    'habitat': 'Dry and semi-arid environments',
+    'conservation': 'Not currently considered globally threatened',
+  },
+  'Sunflower': {
+    'scientific': 'Helianthus annuus',
+    'family': 'Asteraceae',
+    'habitat': 'Open sunny areas and cultivated environments',
+    'conservation': 'Not currently considered globally threatened',
+  },
+};
+
+// ================================================================
 // PLANTNET PLANT IDENTIFICATION
 // ================================================================
 
@@ -109,18 +161,12 @@ Future<PlantInfo> identifyPlantFromCamera(
 
 // ================================================================
 // PLANT NAME NORMALIZATION
-//
-// PlantNet may return different common names for the same plant.
-// These are mapped to the names used by our knowledge base.
 // ================================================================
 
 String normalizePlantName(String plantName) {
   final name = plantName.toLowerCase().trim();
 
-  // --------------------------------------------------------------
   // TULASI / HOLY BASIL
-  // --------------------------------------------------------------
-
   if (name.contains('tulsi') ||
       name.contains('tulasi') ||
       name.contains('holy basil') ||
@@ -128,54 +174,36 @@ String normalizePlantName(String plantName) {
     return 'Tulasi';
   }
 
-  // --------------------------------------------------------------
   // HIBISCUS
-  // --------------------------------------------------------------
-
   if (name.contains('hibiscus') ||
       name.contains('shoe flower') ||
       name.contains('china rose')) {
     return 'Hibiscus';
   }
 
-  // --------------------------------------------------------------
   // ROSE
-  // --------------------------------------------------------------
-
   if (name.contains('rose')) {
     return 'Rose';
   }
 
-  // --------------------------------------------------------------
   // NEEM
-  // --------------------------------------------------------------
-
   if (name.contains('neem') ||
       name.contains('azadirachta')) {
     return 'Neem';
   }
 
-  // --------------------------------------------------------------
   // ALOE
-  // --------------------------------------------------------------
-
   if (name.contains('aloe')) {
     return 'Aloe Vera';
   }
 
-  // --------------------------------------------------------------
   // BANYAN
-  // --------------------------------------------------------------
-
   if (name.contains('banyan') ||
       name.contains('ficus benghalensis')) {
     return 'Banyan';
   }
 
-  // --------------------------------------------------------------
   // SUNFLOWER
-  // --------------------------------------------------------------
-
   if (name.contains('sunflower') ||
       name.contains('helianthus annuus')) {
     return 'Sunflower';
@@ -186,12 +214,6 @@ String normalizePlantName(String plantName) {
 
 // ================================================================
 // NATIVE SPECIES CHECK
-//
-// IMPORTANT:
-// Only plants explicitly treated as native/local-focus species
-// in our project are highlighted here.
-//
-// We do NOT mark Rose or Sunflower as native.
 // ================================================================
 
 bool isNativeFocusSpecies(String plantName) {
@@ -316,7 +338,7 @@ class _CameraScreenState
   late CameraController controller;
 
   // --------------------------------------------------------------
-  // PLANT IDENTIFICATION
+  // IDENTIFICATION
   // --------------------------------------------------------------
 
   PlantInfo? identifiedPlant;
@@ -399,10 +421,7 @@ class _CameraScreenState
       body: Stack(
         children: [
 
-          // ========================================================
           // CAMERA PREVIEW
-          // ========================================================
-
           SizedBox.expand(
             child: FittedBox(
               fit: BoxFit.cover,
@@ -416,20 +435,14 @@ class _CameraScreenState
             ),
           ),
 
-          // ========================================================
-          // GAMIFICATION COUNTER
-          // ========================================================
-
+          // GAMIFICATION BADGE
           Positioned(
             top: 50,
             right: 20,
             child: _buildDiscoveryBadge(),
           ),
 
-          // ========================================================
           // LOADING
-          // ========================================================
-
           if (isLoading)
             Container(
               color: Colors.black54,
@@ -456,10 +469,7 @@ class _CameraScreenState
               ),
             ),
 
-          // ========================================================
-          // PLANT IDENTIFICATION CARD
-          // ========================================================
-
+          // IDENTIFICATION CARD
           if (identifiedPlant != null &&
               !isLoading &&
               aiAnswer == null &&
@@ -472,10 +482,7 @@ class _CameraScreenState
                   _buildPlantIdentificationCard(),
             ),
 
-          // ========================================================
-          // AI ANSWER CARD
-          // ========================================================
-
+          // AI ANSWER
           if (aiAnswer != null &&
               !isLoading)
             Positioned(
@@ -486,10 +493,7 @@ class _CameraScreenState
                   _buildAIAnswerCard(),
             ),
 
-          // ========================================================
           // QUESTION BOX
-          // ========================================================
-
           if (showQuestionBox &&
               !isLoading)
             Positioned(
@@ -500,10 +504,7 @@ class _CameraScreenState
                   _buildQuestionBox(),
             ),
 
-          // ========================================================
           // CAMERA BUTTON
-          // ========================================================
-
           if (identifiedPlant == null &&
               !isLoading)
             Positioned(
@@ -521,10 +522,7 @@ class _CameraScreenState
               ),
             ),
 
-          // ========================================================
           // AI BUTTON
-          // ========================================================
-
           if (identifiedPlant != null &&
               aiAnswer == null &&
               !showQuestionBox &&
@@ -664,10 +662,6 @@ class _CameraScreenState
       );
     }
 
-    // --------------------------------------------------------------
-    // NON-NATIVE / GENERAL PLANT
-    // --------------------------------------------------------------
-
     return Container(
       width: double.infinity,
       margin:
@@ -729,111 +723,447 @@ class _CameraScreenState
         ],
       ),
 
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+
+          mainAxisSize:
+              MainAxisSize.min,
+
+          children: [
+
+            Text(
+              identifiedPlant!.name,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight:
+                    FontWeight.bold,
+                color: Colors.green,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              identifiedPlant!.description,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // NATIVE SPECIES
+            _buildBiodiversityHighlight(),
+
+            // CONFIDENCE
+            Text(
+              identifiedPlant!.grounded
+                  ? '✓ Identification confident'
+                  : '⚠ Low identification confidence',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight:
+                    FontWeight.bold,
+                color:
+                    identifiedPlant!.grounded
+                        ? Colors.green
+                        : Colors.orange,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // ASK AI
+            SizedBox(
+              width: double.infinity,
+              child:
+                  ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    showQuestionBox = true;
+                  });
+                },
+                icon: const Icon(
+                  Icons.auto_awesome,
+                ),
+                label: const Text(
+                  'Ask Botanical AI',
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // ====================================================
+            // NEW SPECIES COMPARISON BUTTON
+            // ====================================================
+
+            SizedBox(
+              width: double.infinity,
+              child:
+                  ElevatedButton.icon(
+                onPressed:
+                    _showSpeciesComparison,
+                icon: const Icon(
+                  Icons.compare_arrows,
+                ),
+                label: const Text(
+                  'Compare Species',
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // SCAN ANOTHER
+            SizedBox(
+              width: double.infinity,
+              child:
+                  OutlinedButton(
+                onPressed: _resetScan,
+                child: const Text(
+                  'Scan Another Plant',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ================================================================
+  // SPECIES COMPARISON
+  // ================================================================
+
+  void _showSpeciesComparison() {
+
+    final currentPlant =
+        normalizePlantName(
+      identifiedPlantName ?? '',
+    );
+
+    final availablePlants =
+        plantComparisonData.keys
+            .where(
+              (plant) => plant != currentPlant,
+            )
+            .toList();
+
+    String selectedPlant =
+        availablePlants.isNotEmpty
+            ? availablePlants.first
+            : '';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+
+        return StatefulBuilder(
+          builder: (
+            context,
+            setModalState,
+          ) {
+
+            return Container(
+              height:
+                  MediaQuery.of(context)
+                          .size
+                          .height *
+                      0.75,
+
+              padding:
+                  const EdgeInsets.all(20),
+
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius:
+                    BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
+              ),
+
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                children: [
+
+                  // HEADER
+                  Row(
+                    children: [
+
+                      const Icon(
+                        Icons.compare_arrows,
+                        color: Colors.green,
+                        size: 30,
+                      ),
+
+                      const SizedBox(width: 10),
+
+                      const Expanded(
+                        child: Text(
+                          'Compare Species',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight:
+                                FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ),
+
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          Icons.close,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    'Compare $currentPlant with another verified species.',
+                    style: const TextStyle(
+                      color: Colors.black54,
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  // SPECIES SELECTOR
+                  DropdownButtonFormField<String>(
+                    value: selectedPlant,
+                    decoration:
+                        InputDecoration(
+                      labelText:
+                          'Select species',
+                      border:
+                          OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(
+                          15,
+                        ),
+                      ),
+                    ),
+                    items:
+                        availablePlants
+                            .map(
+                      (plant) {
+                        return DropdownMenuItem<
+                            String>(
+                          value: plant,
+                          child:
+                              Text(plant),
+                        );
+                      },
+                    ).toList(),
+                    onChanged: (value) {
+                      if (value == null) {
+                        return;
+                      }
+
+                      setModalState(() {
+                        selectedPlant =
+                            value;
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // COMPARISON TABLE
+                  Expanded(
+                    child:
+                        _buildComparisonTable(
+                      currentPlant,
+                      selectedPlant,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ================================================================
+  // COMPARISON TABLE
+  // ================================================================
+
+  Widget _buildComparisonTable(
+    String firstPlant,
+    String secondPlant,
+  ) {
+
+    final first =
+        plantComparisonData[firstPlant];
+
+    final second =
+        plantComparisonData[secondPlant];
+
+    if (first == null ||
+        second == null) {
+      return const Center(
+        child: Text(
+          'Comparison information unavailable.',
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-
-        mainAxisSize:
-            MainAxisSize.min,
-
         children: [
 
-          // --------------------------------------------------------
-          // NAME
-          // --------------------------------------------------------
-
-          Text(
-            identifiedPlant!.name,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight:
-                  FontWeight.bold,
-              color: Colors.green,
-            ),
+          _comparisonRow(
+            'Species',
+            firstPlant,
+            secondPlant,
+            isHeader: true,
           ),
 
-          const SizedBox(height: 10),
-
-          // --------------------------------------------------------
-          // DESCRIPTION
-          // --------------------------------------------------------
-
-          Text(
-            identifiedPlant!.description,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
-            ),
+          _comparisonRow(
+            'Scientific name',
+            first['scientific']!,
+            second['scientific']!,
           ),
 
-          const SizedBox(height: 15),
-
-          // --------------------------------------------------------
-          // NATIVE SPECIES FEATURE
-          // --------------------------------------------------------
-
-          _buildBiodiversityHighlight(),
-
-          // --------------------------------------------------------
-          // IDENTIFICATION CONFIDENCE
-          // --------------------------------------------------------
-
-          Text(
-            identifiedPlant!.grounded
-                ? '✓ Identification confident'
-                : '⚠ Low identification confidence',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight:
-                  FontWeight.bold,
-              color:
-                  identifiedPlant!.grounded
-                      ? Colors.green
-                      : Colors.orange,
-            ),
+          _comparisonRow(
+            'Family',
+            first['family']!,
+            second['family']!,
           ),
 
-          const SizedBox(height: 15),
-
-          // --------------------------------------------------------
-          // ASK AI
-          // --------------------------------------------------------
-
-          SizedBox(
-            width: double.infinity,
-            child:
-                ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  showQuestionBox = true;
-                });
-              },
-              icon: const Icon(
-                Icons.auto_awesome,
-              ),
-              label: const Text(
-                'Ask Botanical AI',
-              ),
-            ),
+          _comparisonRow(
+            'Habitat',
+            first['habitat']!,
+            second['habitat']!,
           ),
 
-          const SizedBox(height: 8),
-
-          // --------------------------------------------------------
-          // SCAN ANOTHER
-          // --------------------------------------------------------
-
-          SizedBox(
-            width: double.infinity,
-            child:
-                OutlinedButton(
-              onPressed: _resetScan,
-              child: const Text(
-                'Scan Another Plant',
-              ),
-            ),
+          _comparisonRow(
+            'Conservation status',
+            first['conservation']!,
+            second['conservation']!,
           ),
         ],
+      ),
+    );
+  }
+
+  // ================================================================
+  // COMPARISON ROW
+  // ================================================================
+
+  Widget _comparisonRow(
+    String label,
+    String firstValue,
+    String secondValue, {
+    bool isHeader = false,
+  }) {
+
+    return Container(
+      margin:
+          const EdgeInsets.only(bottom: 8),
+
+      decoration: BoxDecoration(
+        borderRadius:
+            BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey.shade300,
+        ),
+      ),
+
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment:
+              CrossAxisAlignment.stretch,
+
+          children: [
+
+            // LABEL
+            Container(
+              width: 105,
+              padding:
+                  const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius:
+                    const BorderRadius.only(
+                  topLeft:
+                      Radius.circular(12),
+                  bottomLeft:
+                      Radius.circular(12),
+                ),
+              ),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight:
+                      FontWeight.bold,
+                  color:
+                      isHeader
+                          ? Colors.green
+                          : Colors.black87,
+                ),
+              ),
+            ),
+
+            // FIRST VALUE
+            Expanded(
+              child: Padding(
+                padding:
+                    const EdgeInsets.all(10),
+                child: Text(
+                  firstValue,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight:
+                        FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+
+            // SECOND VALUE
+            Expanded(
+              child: Container(
+                padding:
+                    const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color:
+                      Colors.grey.shade50,
+                  borderRadius:
+                      const BorderRadius.only(
+                    topRight:
+                        Radius.circular(12),
+                    bottomRight:
+                        Radius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  secondValue,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight:
+                        FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -867,10 +1197,6 @@ class _CameraScreenState
             CrossAxisAlignment.start,
 
         children: [
-
-          // --------------------------------------------------------
-          // HEADER
-          // --------------------------------------------------------
 
           Row(
             children: [
@@ -908,10 +1234,6 @@ class _CameraScreenState
 
           const SizedBox(height: 5),
 
-          // --------------------------------------------------------
-          // PLANT
-          // --------------------------------------------------------
-
           Text(
             'Asking about: '
             '${identifiedPlantName ?? ''}',
@@ -924,10 +1246,6 @@ class _CameraScreenState
           ),
 
           const SizedBox(height: 12),
-
-          // --------------------------------------------------------
-          // QUESTION
-          // --------------------------------------------------------
 
           TextField(
             controller:
@@ -961,10 +1279,6 @@ class _CameraScreenState
           ),
 
           const SizedBox(height: 12),
-
-          // --------------------------------------------------------
-          // ASK BUTTON
-          // --------------------------------------------------------
 
           SizedBox(
             width: double.infinity,
@@ -1012,159 +1326,129 @@ class _CameraScreenState
         ],
       ),
 
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
 
-        mainAxisSize:
-            MainAxisSize.min,
+          mainAxisSize:
+              MainAxisSize.min,
 
-        children: [
+          children: [
 
-          // --------------------------------------------------------
-          // HEADER
-          // --------------------------------------------------------
+            Row(
+              children: [
 
-          Row(
-            children: [
-
-              const Icon(
-                Icons.auto_awesome,
-                color: Colors.green,
-              ),
-
-              const SizedBox(width: 8),
-
-              const Text(
-                'Botanical AI',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight:
-                      FontWeight.bold,
+                const Icon(
+                  Icons.auto_awesome,
                   color: Colors.green,
                 ),
-              ),
-            ],
-          ),
 
-          const SizedBox(height: 15),
+                const SizedBox(width: 8),
 
-          // --------------------------------------------------------
-          // PLANT
-          // --------------------------------------------------------
-
-          Text(
-            identifiedPlantName ??
-                aiAnswer!.name,
-
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight:
-                  FontWeight.bold,
+                const Text(
+                  'Botanical AI',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight:
+                        FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
             ),
-          ),
 
-          const SizedBox(height: 10),
+            const SizedBox(height: 15),
 
-          // --------------------------------------------------------
-          // ANSWER
-          // --------------------------------------------------------
-
-          Text(
-            aiAnswer!.description,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
-          // --------------------------------------------------------
-          // QUESTION TYPE
-          // --------------------------------------------------------
-
-          Text(
-            'Question type: '
-            '${aiAnswer!.questionType}',
-
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight:
-                  FontWeight.w600,
-            ),
-          ),
-
-          const SizedBox(height: 5),
-
-          // --------------------------------------------------------
-          // GROUNDING
-          // --------------------------------------------------------
-
-          Text(
-            aiAnswer!.grounded
-                ? '✓ Knowledge grounded'
-                : '⚠ Knowledge not grounded',
-
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight:
-                  FontWeight.bold,
-
-              color:
-                  aiAnswer!.grounded
-                      ? Colors.green
-                      : Colors.orange,
-            ),
-          ),
-
-          const SizedBox(height: 15),
-
-          // --------------------------------------------------------
-          // ASK ANOTHER
-          // --------------------------------------------------------
-
-          SizedBox(
-            width: double.infinity,
-
-            child:
-                ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  aiAnswer = null;
-                  showQuestionBox = true;
-                  questionController.clear();
-                });
-              },
-
-              icon: const Icon(
-                Icons.question_answer,
-              ),
-
-              label: const Text(
-                'Ask Another Question',
+            Text(
+              identifiedPlantName ??
+                  aiAnswer!.name,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight:
+                    FontWeight.bold,
               ),
             ),
-          ),
 
-          // --------------------------------------------------------
-          // NEW PLANT
-          // --------------------------------------------------------
+            const SizedBox(height: 10),
 
-          SizedBox(
-            width: double.infinity,
-
-            child:
-                OutlinedButton(
-              onPressed:
-                  _resetScan,
-
-              child: const Text(
-                'Scan Another Plant',
+            Text(
+              aiAnswer!.description,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black87,
               ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 10),
+
+            Text(
+              'Question type: '
+              '${aiAnswer!.questionType}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight:
+                    FontWeight.w600,
+              ),
+            ),
+
+            const SizedBox(height: 5),
+
+            Text(
+              aiAnswer!.grounded
+                  ? '✓ Knowledge grounded'
+                  : '⚠ Knowledge not grounded',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight:
+                    FontWeight.bold,
+                color:
+                    aiAnswer!.grounded
+                        ? Colors.green
+                        : Colors.orange,
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            SizedBox(
+              width: double.infinity,
+
+              child:
+                  ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    aiAnswer = null;
+                    showQuestionBox = true;
+                    questionController.clear();
+                  });
+                },
+
+                icon: const Icon(
+                  Icons.question_answer,
+                ),
+
+                label: const Text(
+                  'Ask Another Question',
+                ),
+              ),
+            ),
+
+            SizedBox(
+              width: double.infinity,
+
+              child:
+                  OutlinedButton(
+                onPressed:
+                    _resetScan,
+
+                child: const Text(
+                  'Scan Another Plant',
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1257,16 +1541,8 @@ class _CameraScreenState
         isLoading = true;
       });
 
-      // ------------------------------------------------------------
-      // TAKE PHOTO
-      // ------------------------------------------------------------
-
       final image =
           await controller.takePicture();
-
-      // ------------------------------------------------------------
-      // PLANTNET IDENTIFICATION
-      // ------------------------------------------------------------
 
       final result =
           await identifyPlantFromCamera(
@@ -1276,7 +1552,7 @@ class _CameraScreenState
       if (!mounted) return;
 
       // ============================================================
-      // GAMIFIED PLANT DISCOVERY
+      // GAMIFIED DISCOVERY
       // ============================================================
 
       final canonicalName =
@@ -1299,10 +1575,6 @@ class _CameraScreenState
         );
 
         discoveryCount++;
-
-        // ----------------------------------------------------------
-        // BADGES
-        // ----------------------------------------------------------
 
         String? badgeMessage;
 
@@ -1339,10 +1611,6 @@ class _CameraScreenState
           });
         }
       }
-
-      // ============================================================
-      // SAVE RESULT
-      // ============================================================
 
       setState(() {
 
