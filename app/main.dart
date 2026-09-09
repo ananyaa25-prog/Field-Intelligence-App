@@ -208,6 +208,26 @@ String normalizePlantName(String plantName) {
       name.contains('helianthus annuus')) {
     return 'Sunflower';
   }
+  // --------------------------------------------------------------
+  // BRAHMI
+  // --------------------------------------------------------------
+
+  if (name.contains('brahmi') ||
+      name.contains('bacopa') ||
+      name.contains('bacopa monnieri')) {
+    return 'Brahmi';
+  }
+
+  // --------------------------------------------------------------
+  // SANDALWOOD
+  // --------------------------------------------------------------
+
+  if (name.contains('sandalwood') ||
+      name.contains('sandal') ||
+      name.contains('santalum') ||
+      name.contains('santalum album')) {
+    return 'Sandalwood';
+  }
 
   return plantName;
 }
@@ -224,6 +244,8 @@ bool isNativeFocusSpecies(String plantName) {
     'neem',
     'tulasi',
     'banyan',
+    'brahmi',
+    'sandalwood',
   };
 
   return nativeSpecies.contains(normalized);
