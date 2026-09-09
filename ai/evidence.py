@@ -1,18 +1,13 @@
 """
-Botanical Evidence and Confidence Layer.
+Evidence and Confidence Layer.
 
-This module provides:
-- evidence tracking
-- grounded field identification
-- evidence summaries
-- confidence estimation
-- source transparency for AI responses
-
-The module does not generate new botanical facts.
-It only evaluates and reports the structured
-knowledge already available in the project.
+Provides:
+- evidence collection
+- question-specific evidence selection
+- deterministic confidence estimation
+- structured evidence reports
+- human-readable grounding summaries
 """
-
 
 class BotanicalEvidence:
     """
@@ -26,21 +21,24 @@ class BotanicalEvidence:
             "conservation_knowledge_base"
         ]
 
-    # --------------------------------------------------
+    # ==================================================
     # EVIDENCE COLLECTION
-    # --------------------------------------------------
+    # ==================================================
 
-    def collect_evidence(self, plant):
+    def collect_evidence(self, plant, question_type=None):
         """
-        Collect all available evidence fields from
-        a verified botanical plant record.
+        Collect available evidence from a verified
+        botanical plant record.
+
+        question_type is optional for backward compatibility.
         """
 
         if not plant:
             return {
                 "available": False,
                 "fields": [],
-                "sources": []
+                "sources": [],
+                "question_type": question_type
             }
 
         botanical_fields = [
@@ -93,12 +91,13 @@ class BotanicalEvidence:
         return {
             "available": len(fields) > 0,
             "fields": fields,
-            "sources": sources
+            "sources": sources,
+            "question_type": question_type
         }
 
-    # --------------------------------------------------
+    # ==================================================
     # QUESTION-SPECIFIC EVIDENCE
-    # --------------------------------------------------
+    # ==================================================
 
     def get_relevant_fields(
         self,
@@ -106,14 +105,15 @@ class BotanicalEvidence:
         question_type
     ):
         """
-        Identify the evidence fields relevant to
-        the user's question category.
+        Identify evidence fields relevant to the
+        user's question category.
         """
 
         if not plant:
             return []
 
         mapping = {
+
             "botanical": [
                 "common_name",
                 "scientific_name",
@@ -153,17 +153,15 @@ class BotanicalEvidence:
             mapping["general"]
         )
 
-        relevant_fields = []
+        return [
+            field
+            for field in fields_to_check
+            if plant.get(field)
+        ]
 
-        for field in fields_to_check:
-            if plant.get(field):
-                relevant_fields.append(field)
-
-        return relevant_fields
-
-    # --------------------------------------------------
+    # ==================================================
     # CONFIDENCE ESTIMATION
-    # --------------------------------------------------
+    # ==================================================
 
     def calculate_confidence(
         self,
@@ -171,9 +169,8 @@ class BotanicalEvidence:
         question_type
     ):
         """
-        Calculate deterministic confidence based
-        on the availability of relevant structured
-        evidence.
+        Calculate deterministic confidence from
+        relevant structured evidence availability.
         """
 
         if not plant:
@@ -186,6 +183,7 @@ class BotanicalEvidence:
             }
 
         mapping = {
+
             "botanical": [
                 "common_name",
                 "scientific_name",
@@ -242,8 +240,10 @@ class BotanicalEvidence:
 
         if score >= 0.8:
             level = "high"
+
         elif score >= 0.5:
             level = "medium"
+
         else:
             level = "low"
 
@@ -257,9 +257,9 @@ class BotanicalEvidence:
             )
         }
 
-    # --------------------------------------------------
-    # EVIDENCE REPORT
-    # --------------------------------------------------
+    # ==================================================
+    # COMPLETE EVIDENCE REPORT
+    # ==================================================
 
     def build_evidence_report(
         self,
@@ -267,8 +267,7 @@ class BotanicalEvidence:
         question_type
     ):
         """
-        Build a structured evidence report that can
-        be consumed by the AI/application layer.
+        Build the complete evidence and confidence report.
         """
 
         if not plant:
@@ -285,7 +284,10 @@ class BotanicalEvidence:
                 }
             }
 
-        evidence = self.collect_evidence(plant)
+        evidence = self.collect_evidence(
+            plant,
+            question_type
+        )
 
         relevant_fields = self.get_relevant_fields(
             plant,
@@ -304,9 +306,9 @@ class BotanicalEvidence:
             "confidence": confidence
         }
 
-    # --------------------------------------------------
+    # ==================================================
     # HUMAN-READABLE SUMMARY
-    # --------------------------------------------------
+    # ==================================================
 
     def build_summary(
         self,
@@ -314,8 +316,7 @@ class BotanicalEvidence:
         question_type
     ):
         """
-        Create a readable grounding report for
-        debugging, demonstrations, and application UI.
+        Create a readable grounding report.
         """
 
         report = self.build_evidence_report(
@@ -388,25 +389,19 @@ if __name__ == "__main__":
         "ecology"
     )
 
-    if report["grounded"]:
-        print(
-            "PASS - Evidence successfully collected"
-        )
-    else:
-        print(
-            "FAIL - Evidence collection failed"
-        )
+    print()
+    print("Grounded:", report["grounded"])
+    print("Sources:", report["sources"])
+    print("Evidence fields:", report["evidence_fields"])
+    print("Confidence:", report["confidence"])
 
     print()
-    print(
-        evidence.build_summary(
-            plant,
-            "ecology"
-        )
-    )
+    print(evidence.build_summary(
+        plant,
+        "ecology"
+    ))
 
     print()
     print("========================================")
     print("       EVIDENCE LAYER READY")
     print("========================================")
-    

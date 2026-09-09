@@ -1,27 +1,21 @@
 """
 Grounded Botanical AI Assistant.
 
-This module provides the complete botanical intelligence pipeline:
+Complete pipeline:
 
-    Plant Retrieval
-          ↓
-    Question Classification
-          ↓
-    Evidence Collection
-          ↓
-    Confidence Evaluation
-          ↓
-    Grounded Prompt Construction
-          ↓
-    Grounded Response Generation
-          ↓
-    Application-Ready Result
-
-The assistant is designed so that the application layer can
-import BotanicalAssistant without triggering the CLI.
-
-All factual responses are grounded in the structured botanical
-and conservation knowledge bases.
+Plant Retrieval
+       ↓
+Question Classification
+       ↓
+Evidence Collection
+       ↓
+Confidence Evaluation
+       ↓
+Grounded Prompt Construction
+       ↓
+Grounded Response Generation
+       ↓
+Application-Ready Result
 """
 
 from retrieval import PlantKnowledgeBase
@@ -33,14 +27,6 @@ from evidence import BotanicalEvidence
 class BotanicalAssistant:
     """
     Main botanical intelligence component.
-
-    Connects:
-    - botanical knowledge
-    - conservation knowledge
-    - evidence collection
-    - confidence evaluation
-    - prompt engineering
-    - grounded response generation
     """
 
     def __init__(self):
@@ -58,16 +44,6 @@ class BotanicalAssistant:
     # ==================================================
 
     def classify_question(self, question):
-        """
-        Classify the user's question into an intent category.
-
-        Supported categories:
-        - botanical
-        - ecology
-        - conservation
-        - facts
-        - general
-        """
 
         if not question:
             return "general"
@@ -83,7 +59,9 @@ class BotanicalAssistant:
             "endangered",
             "save",
             "preserve",
-            "preservation"
+            "preservation",
+            "danger",
+            "risk"
         ]
 
         ecology_keywords = [
@@ -108,8 +86,9 @@ class BotanicalAssistant:
             "description",
             "identify",
             "identification",
-            "what is",
-            "native region"
+            "native region",
+            "native to",
+            "origin"
         ]
 
         fact_keywords = [
@@ -151,9 +130,6 @@ class BotanicalAssistant:
     # ==================================================
 
     def retrieve_context(self, plant_name):
-        """
-        Retrieve verified botanical context for a plant.
-        """
 
         plant = self.knowledge_base.get_plant(
             plant_name
@@ -170,41 +146,26 @@ class BotanicalAssistant:
     # EVIDENCE COLLECTION
     # ==================================================
 
-    def collect_evidence(self, plant_name, question_type):
+    def collect_evidence(
+        self,
+        plant,
+        question_type
+    ):
         """
-        Collect grounded evidence for the selected plant.
-
-        The evidence layer determines:
-        - whether sufficient evidence exists
-        - which knowledge sources were used
-        - which fields are relevant
-        - confidence level
-        - confidence score
-        - confidence reasoning
+        Collect evidence and confidence for the
+        specific plant and question category.
         """
 
-        try:
-
-            return self.evidence.collect_evidence(
-                plant_name,
+        if not plant:
+            return self.evidence.build_evidence_report(
+                None,
                 question_type
             )
 
-        except TypeError:
-
-            try:
-
-                return self.evidence.collect_evidence(
-                    plant_name
-                )
-
-            except Exception:
-
-                return None
-
-        except Exception:
-
-            return None
+        return self.evidence.build_evidence_report(
+            plant,
+            question_type
+        )
 
     # ==================================================
     # PROMPT CONSTRUCTION
@@ -215,10 +176,6 @@ class BotanicalAssistant:
         plant_name,
         question
     ):
-        """
-        Retrieve plant information, collect evidence,
-        classify the question and construct a grounded prompt.
-        """
 
         plant = self.knowledge_base.get_plant(
             plant_name
@@ -236,7 +193,7 @@ class BotanicalAssistant:
         )
 
         evidence = self.collect_evidence(
-            plant_name,
+            plant,
             question_type
         )
 
@@ -306,117 +263,442 @@ class BotanicalAssistant:
     def generate_grounded_response(
         self,
         plant,
+        question,
         question_type
     ):
         """
-        Generate a deterministic response directly from
-        the verified botanical knowledge base.
-
-        This layer intentionally avoids inventing information.
+        Generate a response using only fields
+        available in the verified plant record.
         """
+
+        question = question.lower().strip()
+
+        common_name = plant.get(
+            "common_name",
+            "this plant"
+        )
+
+        # ==================================================
+        # ECOLOGY
+        # ==================================================
 
         if question_type == "ecology":
 
-            ecological_importance = "\n".join(
-                f"- {item}"
-                for item in plant.get(
+            if any(
+                word in question
+                for word in [
+                    "habitat",
+                    "where does",
+                    "where do",
+                    "where can"
+                ]
+            ):
+
+                habitat = plant.get(
+                    "habitat"
+                )
+
+                if habitat:
+                    return (
+                        f"The habitat of "
+                        f"{common_name} is:\n\n"
+                        f"{habitat}"
+                    )
+
+            if any(
+                word in question
+                for word in [
+                    "biodiversity",
+                    "biodiversity role",
+                    "diversity"
+                ]
+            ):
+
+                role = plant.get(
+                    "biodiversity_role"
+                )
+
+                if role:
+                    return (
+                        f"{common_name} contributes "
+                        f"to biodiversity by:\n\n"
+                        f"{role}"
+                    )
+
+            if any(
+                word in question
+                for word in [
+                    "ecological importance",
+                    "ecological role",
+                    "ecology",
+                    "ecosystem",
+                    "environment"
+                ]
+            ):
+
+                importance = plant.get(
                     "ecological_importance",
                     []
                 )
+
+                if importance:
+
+                    formatted = "\n".join(
+                        f"- {item}"
+                        for item in importance
+                    )
+
+                    return (
+                        f"The ecological importance "
+                        f"of {common_name} includes:\n\n"
+                        f"{formatted}"
+                    )
+
+            if any(
+                word in question
+                for word in [
+                    "wildlife",
+                    "pollinator",
+                    "pollination"
+                ]
+            ):
+
+                role = plant.get(
+                    "biodiversity_role"
+                )
+
+                if role:
+                    return (
+                        f"According to the current "
+                        f"knowledge base:\n\n"
+                        f"{role}"
+                    )
+
+            importance = plant.get(
+                "ecological_importance",
+                []
             )
+
+            if importance:
+
+                formatted = "\n".join(
+                    f"- {item}"
+                    for item in importance
+                )
+
+                return (
+                    f"{common_name} plays a role "
+                    f"in its local environment.\n\n"
+                    f"Ecological importance:\n"
+                    f"{formatted}"
+                )
 
             return (
-                f"{plant['common_name']} plays a role "
-                f"in its local environment.\n\n"
-
-                f"Habitat:\n"
-                f"{plant['habitat']}\n\n"
-
-                f"Ecological importance:\n"
-                f"{ecological_importance}\n\n"
-
-                f"Biodiversity role:\n"
-                f"{plant['biodiversity_role']}"
+                f"The current knowledge base does "
+                f"not contain enough ecological "
+                f"information about {common_name}."
             )
+
+        # ==================================================
+        # CONSERVATION
+        # ==================================================
 
         if question_type == "conservation":
 
-            threats = "\n".join(
-                f"- {item}"
-                for item in plant.get(
+            if any(
+                word in question
+                for word in [
+                    "threat",
+                    "threats",
+                    "danger",
+                    "risk"
+                ]
+            ):
+
+                threats = plant.get(
                     "threats",
                     []
                 )
-            )
 
-            actions = "\n".join(
-                f"- {item}"
-                for item in plant.get(
+                if threats:
+
+                    formatted = "\n".join(
+                        f"- {item}"
+                        for item in threats
+                    )
+
+                    return (
+                        f"Potential threats to "
+                        f"{common_name} include:\n\n"
+                        f"{formatted}"
+                    )
+
+            if any(
+                word in question
+                for word in [
+                    "protect",
+                    "protection",
+                    "save",
+                    "preserve",
+                    "preservation",
+                    "conserve",
+                    "conservation action"
+                ]
+            ):
+
+                actions = plant.get(
                     "conservation_actions",
                     []
                 )
+
+                if actions:
+
+                    formatted = "\n".join(
+                        f"- {item}"
+                        for item in actions
+                    )
+
+                    return (
+                        f"Conservation actions for "
+                        f"{common_name} include:\n\n"
+                        f"{formatted}"
+                    )
+
+            if any(
+                word in question
+                for word in [
+                    "status",
+                    "endangered"
+                ]
+            ):
+
+                status = plant.get(
+                    "conservation_status"
+                )
+
+                if status:
+                    return (
+                        f"The conservation status "
+                        f"of {common_name} is:\n\n"
+                        f"{status}"
+                    )
+
+            status = plant.get(
+                "conservation_status"
             )
+
+            if status:
+                return (
+                    f"The conservation status of "
+                    f"{common_name} is:\n\n"
+                    f"{status}"
+                )
 
             return (
-                f"Conservation status:\n"
-                f"{plant['conservation_status']}\n\n"
-
-                f"Potential threats:\n"
-                f"{threats}\n\n"
-
-                f"Conservation actions:\n"
-                f"{actions}"
+                f"The current knowledge base does "
+                f"not contain enough conservation "
+                f"information about {common_name}."
             )
+
+        # ==================================================
+        # BOTANICAL
+        # ==================================================
 
         if question_type == "botanical":
 
-            characteristics = "\n".join(
-                f"- {item}"
-                for item in plant.get(
+            if "scientific name" in question:
+
+                scientific_name = plant.get(
+                    "scientific_name"
+                )
+
+                if scientific_name:
+                    return (
+                        f"The scientific name of "
+                        f"{common_name} is "
+                        f"{scientific_name}."
+                    )
+
+            if "family" in question:
+
+                family = plant.get(
+                    "family"
+                )
+
+                if family:
+                    return (
+                        f"{common_name} belongs to "
+                        f"the {family} family."
+                    )
+
+            if any(
+                word in question
+                for word in [
+                    "native region",
+                    "native to",
+                    "origin",
+                    "where is it native"
+                ]
+            ):
+
+                native_region = plant.get(
+                    "native_region"
+                )
+
+                if native_region:
+                    return (
+                        f"{common_name} is native to "
+                        f"{native_region}."
+                    )
+
+            if any(
+                word in question
+                for word in [
+                    "characteristic",
+                    "characteristics",
+                    "feature",
+                    "features"
+                ]
+            ):
+
+                characteristics = plant.get(
                     "characteristics",
                     []
                 )
+
+                if characteristics:
+
+                    formatted = "\n".join(
+                        f"- {item}"
+                        for item in characteristics
+                    )
+
+                    return (
+                        f"Key characteristics of "
+                        f"{common_name} are:\n\n"
+                        f"{formatted}"
+                    )
+
+            if "description" in question:
+
+                description = plant.get(
+                    "description"
+                )
+
+                if description:
+                    return (
+                        f"{common_name} "
+                        f"({plant.get('scientific_name', '')}) "
+                        f"is {description}"
+                    )
+
+            scientific_name = plant.get(
+                "scientific_name",
+                ""
+            )
+
+            family = plant.get(
+                "family",
+                ""
+            )
+
+            description = plant.get(
+                "description",
+                ""
             )
 
             return (
-                f"{plant['common_name']} "
-                f"({plant['scientific_name']}) belongs "
-                f"to the {plant['family']} family.\n\n"
-
-                f"{plant['description']}\n\n"
-
-                f"Key characteristics:\n"
-                f"{characteristics}"
+                f"{common_name} "
+                f"({scientific_name}) belongs "
+                f"to the {family} family.\n\n"
+                f"{description}"
             )
+
+        # ==================================================
+        # FACTS
+        # ==================================================
 
         if question_type == "facts":
 
-            facts = "\n".join(
-                f"- {item}"
-                for item in plant.get(
-                    "interesting_facts",
-                    []
-                )
+            facts = plant.get(
+                "interesting_facts",
+                []
             )
 
+            if facts:
+
+                formatted = "\n".join(
+                    f"- {item}"
+                    for item in facts
+                )
+
+                return (
+                    f"Interesting facts about "
+                    f"{common_name}:\n\n"
+                    f"{formatted}"
+                )
+
             return (
-                f"Interesting facts about "
-                f"{plant['common_name']}:\n"
-                f"{facts}"
+                f"The current knowledge base does "
+                f"not contain interesting facts "
+                f"about {common_name}."
+            )
+
+        # ==================================================
+        # GENERAL
+        # ==================================================
+
+        if question_type == "general":
+
+            if "scientific name" in question:
+
+                return (
+                    f"The scientific name of "
+                    f"{common_name} is "
+                    f"{plant.get('scientific_name')}."
+                )
+
+            if "family" in question:
+
+                return (
+                    f"{common_name} belongs to "
+                    f"the {plant.get('family')} family."
+                )
+
+            if "habitat" in question:
+
+                return (
+                    f"The habitat of "
+                    f"{common_name} is:\n\n"
+                    f"{plant.get('habitat')}"
+                )
+
+            if any(
+                word in question
+                for word in [
+                    "what is",
+                    "describe",
+                    "tell me about"
+                ]
+            ):
+
+                return (
+                    f"{common_name} "
+                    f"({plant.get('scientific_name', '')})\n\n"
+                    f"{plant.get('description', '')}"
+                )
+
+            return (
+                f"{common_name} "
+                f"({plant.get('scientific_name', '')}) "
+                f"belongs to the "
+                f"{plant.get('family', '')} family."
             )
 
         return (
-            f"{plant['common_name']} "
-            f"({plant['scientific_name']}) belongs "
-            f"to the {plant['family']} family.\n\n"
-
-            f"{plant['description']}\n\n"
-
-            f"Habitat:\n"
-            f"{plant['habitat']}\n\n"
-
-            f"Conservation status:\n"
-            f"{plant['conservation_status']}"
+            f"I can answer questions about "
+            f"{common_name} using the information "
+            f"available in the botanical knowledge base."
         )
 
     # ==================================================
@@ -429,18 +711,7 @@ class BotanicalAssistant:
         question
     ):
         """
-        Execute the complete grounded AI pipeline.
-
-        Pipeline:
-
-        1. Plant retrieval
-        2. Question classification
-        3. Evidence collection
-        4. Confidence evaluation
-        5. Context construction
-        6. Grounded prompt construction
-        7. Grounded response generation
-        8. Application-ready result
+        Execute the complete grounded pipeline.
         """
 
         pipeline = self.build_grounded_prompt(
@@ -448,9 +719,9 @@ class BotanicalAssistant:
             question
         )
 
-        # ----------------------------------------------
+        # --------------------------------------------------
         # UNKNOWN PLANT
-        # ----------------------------------------------
+        # --------------------------------------------------
 
         if pipeline is None:
 
@@ -465,79 +736,61 @@ class BotanicalAssistant:
                 "grounded": False,
                 "evidence": None,
                 "confidence": {
-                    "level": "none",
+                    "level": "low",
                     "score": 0.0,
-                    "reason": "Plant was not found."
+                    "reason": (
+                        "Plant was not found."
+                    )
                 },
                 "prompt": None,
                 "context": None
             }
 
-        # ----------------------------------------------
-        # GROUNDED RESPONSE
-        # ----------------------------------------------
+        # --------------------------------------------------
+        # RESPONSE
+        # --------------------------------------------------
 
         response = self.generate_grounded_response(
             pipeline["plant"],
+            question,
             pipeline["question_type"]
         )
 
-        # ----------------------------------------------
-        # EVIDENCE
-        # ----------------------------------------------
+        # --------------------------------------------------
+        # EVIDENCE REPORT
+        # --------------------------------------------------
 
-        evidence = pipeline.get(
-            "evidence"
+        evidence_report = pipeline.get(
+            "evidence",
+            {}
         )
 
-        # ----------------------------------------------
+        # --------------------------------------------------
         # CONFIDENCE
-        # ----------------------------------------------
+        # --------------------------------------------------
 
-        confidence = {
-            "level": "unknown",
-            "score": 0.0,
-            "reason": "Confidence information unavailable."
-        }
+        confidence = evidence_report.get(
+            "confidence",
+            {
+                "level": "low",
+                "score": 0.0,
+                "reason": (
+                    "Confidence information unavailable."
+                )
+            }
+        )
 
-        if evidence:
-
-            if isinstance(evidence, dict):
-
-                if "confidence" in evidence:
-
-                    confidence = evidence[
-                        "confidence"
-                    ]
-
-                elif "grounding" in evidence:
-
-                    grounding = evidence[
-                        "grounding"
-                    ]
-
-                    if isinstance(
-                        grounding,
-                        dict
-                    ):
-
-                        confidence = grounding.get(
-                            "confidence",
-                            confidence
-                        )
-
-        # ----------------------------------------------
+        # --------------------------------------------------
         # FINAL RESULT
-        # ----------------------------------------------
+        # --------------------------------------------------
 
         return {
             "status": "success",
 
-            "plant": pipeline[
-                "plant"
-            ][
-                "common_name"
-            ],
+            "plant": pipeline["plant"].get(
+                "common_name",
+                plant_name
+            ),
 
             "question_type": pipeline[
                 "question_type"
@@ -545,19 +798,18 @@ class BotanicalAssistant:
 
             "answer": response,
 
-            "grounded": True,
+            "grounded": evidence_report.get(
+                "grounded",
+                False
+            ),
 
-            "evidence": evidence,
+            "evidence": evidence_report,
 
             "confidence": confidence,
 
-            "prompt": pipeline[
-                "prompt"
-            ],
+            "prompt": pipeline["prompt"],
 
-            "context": pipeline[
-                "context"
-            ]
+            "context": pipeline["context"]
         }
 
     # ==================================================
@@ -568,10 +820,13 @@ class BotanicalAssistant:
         self,
         plant_name
     ):
-        """
-        Return verified botanical context for downstream
-        application or AI components.
-        """
+
+        plant = self.knowledge_base.get_plant(
+            plant_name
+        )
+
+        if plant is None:
+            return None
 
         return self.knowledge_base.build_context(
             plant_name
@@ -586,17 +841,25 @@ class BotanicalAssistant:
         plant_name,
         question
     ):
-        """
-        Return the evidence and confidence report for
-        a specific botanical question.
-        """
+
+        plant = self.knowledge_base.get_plant(
+            plant_name
+        )
+
+        if plant is None:
+
+            return {
+                "plant": plant_name,
+                "question_type": "unknown",
+                "evidence": None
+            }
 
         question_type = self.classify_question(
             question
         )
 
         evidence = self.collect_evidence(
-            plant_name,
+            plant,
             question_type
         )
 
@@ -608,21 +871,10 @@ class BotanicalAssistant:
 
 
 # ======================================================
-# INTERACTIVE COMMAND-LINE INTERFACE
+# INTERACTIVE COMMAND LINE
 # ======================================================
 
 def run_interactive_assistant():
-    """
-    Run the Botanical Intelligence Assistant interactively.
-
-    The CLI demonstrates:
-    - plant selection
-    - question classification
-    - grounded answers
-    - evidence availability
-    - confidence
-    - safe error handling
-    """
 
     assistant = BotanicalAssistant()
 
@@ -632,7 +884,6 @@ def run_interactive_assistant():
     print("========================================")
 
     print()
-
     print(
         "Welcome to the Botanical Intelligence Assistant."
     )
@@ -644,35 +895,26 @@ def run_interactive_assistant():
 
     print()
 
+    plants = assistant.knowledge_base.list_plants()
+
     print("----------------------------------------")
     print("AVAILABLE PLANTS")
     print("----------------------------------------")
-
-    plants = (
-        assistant
-        .knowledge_base
-        .list_plants()
-    )
 
     for index, plant in enumerate(
         plants,
         start=1
     ):
-
         print(
             f"{index}. {plant}"
         )
 
     print()
-
-    print(
-        "Type 'exit' at any time to quit."
-    )
+    print("Type 'exit' at any time to quit.")
 
     while True:
 
         print()
-
         print("----------------------------------------")
 
         plant_name = input(
@@ -680,50 +922,32 @@ def run_interactive_assistant():
         ).strip()
 
         if plant_name.lower() == "exit":
-
             print()
-
             print(
                 "Thank you for using the "
                 "Botanical Intelligence Assistant."
             )
-
             break
 
         if not plant_name:
-
             print(
                 "Please enter a plant name."
             )
-
             continue
 
-        plant = (
-            assistant
-            .knowledge_base
-            .get_plant(
-                plant_name
-            )
+        plant = assistant.knowledge_base.get_plant(
+            plant_name
         )
 
         if plant is None:
 
             print()
-
             print(
-                f"Plant '{plant_name}' "
-                "was not found."
+                f"Plant '{plant_name}' was not found."
             )
-
-            print(
-                "Please choose a plant from "
-                "the available list."
-            )
-
             continue
 
         print()
-
         print(
             f"Selected plant: "
             f"{plant['common_name']}"
@@ -741,22 +965,12 @@ def run_interactive_assistant():
         ).strip()
 
         if question.lower() == "exit":
-
-            print()
-
-            print(
-                "Thank you for using the "
-                "Botanical Intelligence Assistant."
-            )
-
             break
 
         if not question:
-
             print(
                 "Please enter a question."
             )
-
             continue
 
         result = assistant.answer(
@@ -765,7 +979,6 @@ def run_interactive_assistant():
         )
 
         print()
-
         print("----------------------------------------")
         print("AI ANALYSIS")
         print("----------------------------------------")
@@ -787,35 +1000,37 @@ def run_interactive_assistant():
 
         print(
             f"Confidence level: "
-            f"{confidence.get('level', 'unknown')}"
+            f"{confidence.get('level')}"
         )
 
         print(
             f"Confidence score: "
-            f"{confidence.get('score', 0.0)}"
+            f"{confidence.get('score')}"
         )
 
         print()
-
         print("ANSWER")
         print("----------------------------------------")
-
         print(
             result["answer"]
         )
 
         print()
-
         print("----------------------------------------")
 
-        print(
-            "Evidence available: "
-            f"{result.get('evidence') is not None}"
+        evidence = result.get(
+            "evidence",
+            {}
         )
 
         print(
-            "The response was generated from "
-            "the verified botanical knowledge base."
+            "Evidence sources: "
+            f"{evidence.get('sources', [])}"
+        )
+
+        print(
+            "Evidence fields: "
+            f"{evidence.get('evidence_fields', [])}"
         )
 
 
@@ -824,5 +1039,4 @@ def run_interactive_assistant():
 # ======================================================
 
 if __name__ == "__main__":
-
     run_interactive_assistant()
