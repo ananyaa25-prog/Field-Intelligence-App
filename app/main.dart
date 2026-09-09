@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 // ================================================================
 // PLANT INFORMATION MODEL
 // ================================================================
@@ -22,12 +21,8 @@ class PlantInfo {
   });
 }
 
-
 // ================================================================
-// PL@NTNET PLANT IDENTIFICATION
-//
-// THIS FUNCTION IS ONLY FOR CAMERA IDENTIFICATION.
-// It sends the captured image to Pl@ntNet.
+// PLANTNET PLANT IDENTIFICATION
 // ================================================================
 
 Future<PlantInfo> identifyPlantFromCamera(
@@ -42,13 +37,11 @@ Future<PlantInfo> identifyPlantFromCamera(
     '&nb-results=5',
   );
 
-  // Create multipart POST request.
   final request = http.MultipartRequest(
     'POST',
     uri,
   );
 
-  // Add the camera image.
   request.files.add(
     await http.MultipartFile.fromPath(
       'images',
@@ -56,21 +49,17 @@ Future<PlantInfo> identifyPlantFromCamera(
     ),
   );
 
-  // Let Pl@ntNet automatically determine whether
-  // the image contains a leaf, flower, fruit, etc.
   request.fields['organs'] = 'auto';
 
-  // Send request.
   final streamedResponse = await request.send();
 
-  // Convert streamed response into normal HTTP response.
   final response = await http.Response.fromStream(
     streamedResponse,
   );
 
   if (response.statusCode != 200) {
     throw Exception(
-      'Pl@ntNet identification failed: '
+      'PlantNet identification failed: '
       '${response.statusCode}\n'
       '${response.body}',
     );
@@ -78,7 +67,6 @@ Future<PlantInfo> identifyPlantFromCamera(
 
   final data = jsonDecode(response.body);
 
-  // Make sure results exist.
   if (data['results'] == null ||
       (data['results'] as List).isEmpty) {
     throw Exception(
@@ -86,7 +74,6 @@ Future<PlantInfo> identifyPlantFromCamera(
     );
   }
 
-  // Pl@ntNet returns results ordered by confidence.
   final bestMatch = data['results'][0];
 
   final score =
@@ -96,7 +83,6 @@ Future<PlantInfo> identifyPlantFromCamera(
       bestMatch['species']
           ['scientificNameWithoutAuthor'];
 
-  // Try to get a common name.
   final commonNames =
       bestMatch['species']['commonNames']
           as List<dynamic>?;
@@ -107,38 +93,131 @@ Future<PlantInfo> identifyPlantFromCamera(
           ? commonNames[0].toString()
           : species;
 
+  final normalizedName =
+      normalizePlantName(commonName);
+
   return PlantInfo(
-    name: commonName,
+    name: normalizedName,
     description:
         'Scientific name: $species\n\n'
         'Identification confidence: '
         '${(score * 100).toStringAsFixed(1)}%',
     questionType: 'plant identification',
-
-    // This is OUR threshold for displaying
-    // "high confidence". It is not an official
-    // Pl@ntNet verification threshold.
     grounded: score >= 0.70,
   );
 }
 
+// ================================================================
+// PLANT NAME NORMALIZATION
+//
+// PlantNet may return different common names for the same plant.
+// These are mapped to the names used by our knowledge base.
+// ================================================================
+
+String normalizePlantName(String plantName) {
+  final name = plantName.toLowerCase().trim();
+
+  // --------------------------------------------------------------
+  // TULASI / HOLY BASIL
+  // --------------------------------------------------------------
+
+  if (name.contains('tulsi') ||
+      name.contains('tulasi') ||
+      name.contains('holy basil') ||
+      name.contains('sacred basil')) {
+    return 'Tulasi';
+  }
+
+  // --------------------------------------------------------------
+  // HIBISCUS
+  // --------------------------------------------------------------
+
+  if (name.contains('hibiscus') ||
+      name.contains('shoe flower') ||
+      name.contains('china rose')) {
+    return 'Hibiscus';
+  }
+
+  // --------------------------------------------------------------
+  // ROSE
+  // --------------------------------------------------------------
+
+  if (name.contains('rose')) {
+    return 'Rose';
+  }
+
+  // --------------------------------------------------------------
+  // NEEM
+  // --------------------------------------------------------------
+
+  if (name.contains('neem') ||
+      name.contains('azadirachta')) {
+    return 'Neem';
+  }
+
+  // --------------------------------------------------------------
+  // ALOE
+  // --------------------------------------------------------------
+
+  if (name.contains('aloe')) {
+    return 'Aloe Vera';
+  }
+
+  // --------------------------------------------------------------
+  // BANYAN
+  // --------------------------------------------------------------
+
+  if (name.contains('banyan') ||
+      name.contains('ficus benghalensis')) {
+    return 'Banyan';
+  }
+
+  // --------------------------------------------------------------
+  // SUNFLOWER
+  // --------------------------------------------------------------
+
+  if (name.contains('sunflower') ||
+      name.contains('helianthus annuus')) {
+    return 'Sunflower';
+  }
+
+  return plantName;
+}
+
+// ================================================================
+// NATIVE SPECIES CHECK
+//
+// IMPORTANT:
+// Only plants explicitly treated as native/local-focus species
+// in our project are highlighted here.
+//
+// We do NOT mark Rose or Sunflower as native.
+// ================================================================
+
+bool isNativeFocusSpecies(String plantName) {
+  final normalized =
+      normalizePlantName(plantName).toLowerCase();
+
+  const nativeSpecies = {
+    'neem',
+    'tulasi',
+    'banyan',
+  };
+
+  return nativeSpecies.contains(normalized);
+}
 
 // ================================================================
 // BOTANICAL AI
-//
-// THIS IS YOUR EXISTING FLASK /ask API.
-// DO NOT CONFUSE THIS WITH PL@NTNET.
-//
-// It receives:
-//   plant   -> plant identified by Pl@ntNet
-//   question -> user's question
-//
 // ================================================================
 
 Future<PlantInfo> askBotanicalAI(
   String plant,
   String question,
 ) async {
+  final normalizedPlant =
+      normalizePlantName(plant);
+
   final response = await http.post(
     Uri.parse(
       'http://172.20.10.2:5000/ask',
@@ -147,7 +226,7 @@ Future<PlantInfo> askBotanicalAI(
       'Content-Type': 'application/json',
     },
     body: jsonEncode({
-      'plant': plant,
+      'plant': normalizedPlant,
       'question': question,
     }),
   );
@@ -163,14 +242,14 @@ Future<PlantInfo> askBotanicalAI(
 
   if (data['status'] != 'success') {
     throw Exception(
-      data['answer']??
-      data['error'] ??
+      data['answer'] ??
+          data['error'] ??
           'Botanical API returned an error.',
     );
   }
 
   return PlantInfo(
-    name: data['plant'] ?? plant,
+    name: data['plant'] ?? normalizedPlant,
     description:
         data['answer'] ??
             'No answer available.',
@@ -181,7 +260,6 @@ Future<PlantInfo> askBotanicalAI(
         data['grounded'] ?? false,
   );
 }
-
 
 // ================================================================
 // MAIN
@@ -197,7 +275,6 @@ Future<void> main() async {
 
 late List<CameraDescription> cameras;
 
-
 // ================================================================
 // APP
 // ================================================================
@@ -209,6 +286,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Botanical AI',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.green,
@@ -219,7 +297,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 // ================================================================
 // CAMERA SCREEN
@@ -233,40 +310,46 @@ class CameraScreen extends StatefulWidget {
       _CameraScreenState();
 }
 
-
 class _CameraScreenState
     extends State<CameraScreen> {
 
   late CameraController controller;
 
   // --------------------------------------------------------------
-  // PLANT IDENTIFICATION RESULT
+  // PLANT IDENTIFICATION
   // --------------------------------------------------------------
 
   PlantInfo? identifiedPlant;
 
+  String? identifiedPlantName;
+
   // --------------------------------------------------------------
-  // BOTANICAL AI RESULT
+  // BOTANICAL AI
   // --------------------------------------------------------------
 
   PlantInfo? aiAnswer;
-
-  // The actual plant name detected by Pl@ntNet.
-  String? identifiedPlantName;
 
   // --------------------------------------------------------------
   // UI STATE
   // --------------------------------------------------------------
 
   bool isLoading = false;
+
   bool showQuestionBox = false;
 
   final TextEditingController questionController =
       TextEditingController();
 
+  // ==============================================================
+  // GAMIFICATION
+  // ==============================================================
+
+  int discoveryCount = 0;
+
+  final Set<String> discoveredPlants = {};
 
   // ==============================================================
-  // INITIALIZE CAMERA
+  // CAMERA INITIALIZATION
   // ==============================================================
 
   @override
@@ -285,7 +368,6 @@ class _CameraScreenState
     });
   }
 
-
   // ==============================================================
   // DISPOSE
   // ==============================================================
@@ -297,7 +379,6 @@ class _CameraScreenState
 
     super.dispose();
   }
-
 
   // ==============================================================
   // BUILD
@@ -335,9 +416,18 @@ class _CameraScreenState
             ),
           ),
 
+          // ========================================================
+          // GAMIFICATION COUNTER
+          // ========================================================
+
+          Positioned(
+            top: 50,
+            right: 20,
+            child: _buildDiscoveryBadge(),
+          ),
 
           // ========================================================
-          // LOADING INDICATOR
+          // LOADING
           // ========================================================
 
           if (isLoading)
@@ -355,7 +445,7 @@ class _CameraScreenState
                     SizedBox(height: 15),
 
                     Text(
-                      'Working...',
+                      'Identifying plant...',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -366,24 +456,24 @@ class _CameraScreenState
               ),
             ),
 
-
           // ========================================================
           // PLANT IDENTIFICATION CARD
           // ========================================================
 
           if (identifiedPlant != null &&
               !isLoading &&
-              aiAnswer == null)
+              aiAnswer == null &&
+              !showQuestionBox)
             Positioned(
               left: 20,
               right: 20,
               bottom: 100,
-              child: _buildPlantIdentificationCard(),
+              child:
+                  _buildPlantIdentificationCard(),
             ),
 
-
           // ========================================================
-          // BOTANICAL AI ANSWER CARD
+          // AI ANSWER CARD
           // ========================================================
 
           if (aiAnswer != null &&
@@ -392,12 +482,12 @@ class _CameraScreenState
               left: 20,
               right: 20,
               bottom: 100,
-              child: _buildAIAnswerCard(),
+              child:
+                  _buildAIAnswerCard(),
             ),
 
-
           // ========================================================
-          // BOTANICAL AI QUESTION BOX
+          // QUESTION BOX
           // ========================================================
 
           if (showQuestionBox &&
@@ -406,14 +496,33 @@ class _CameraScreenState
               left: 20,
               right: 20,
               bottom: 100,
-              child: _buildQuestionBox(),
+              child:
+                  _buildQuestionBox(),
             ),
 
+          // ========================================================
+          // CAMERA BUTTON
+          // ========================================================
+
+          if (identifiedPlant == null &&
+              !isLoading)
+            Positioned(
+              bottom: 30,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: FloatingActionButton(
+                  heroTag: 'cameraButton',
+                  onPressed: _takePhoto,
+                  child: const Icon(
+                    Icons.camera_alt,
+                  ),
+                ),
+              ),
+            ),
 
           // ========================================================
           // AI BUTTON
-          //
-          // This stays available AFTER plant identification.
           // ========================================================
 
           if (identifiedPlant != null &&
@@ -437,41 +546,174 @@ class _CameraScreenState
                 ),
               ),
             ),
-
-
-          // ========================================================
-          // CAMERA BUTTON
-          // ========================================================
-
-          if (identifiedPlant == null &&
-              !isLoading)
-            Positioned(
-              bottom: 30,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: FloatingActionButton(
-                  heroTag: 'cameraButton',
-                  onPressed: _takePhoto,
-                  child: const Icon(
-                    Icons.camera_alt,
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );
   }
 
+  // ================================================================
+  // GAMIFICATION BADGE
+  // ================================================================
+
+  Widget _buildDiscoveryBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 10,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius:
+            BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+
+          const Icon(
+            Icons.emoji_events,
+            color: Colors.amber,
+          ),
+
+          const SizedBox(width: 6),
+
+          Text(
+            '$discoveryCount discovered',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================================================================
+  // NATIVE SPECIES HIGHLIGHT
+  // ================================================================
+
+  Widget _buildBiodiversityHighlight() {
+
+    final plantName =
+        identifiedPlantName ?? '';
+
+    if (isNativeFocusSpecies(plantName)) {
+
+      return Container(
+        width: double.infinity,
+        margin:
+            const EdgeInsets.only(bottom: 12),
+        padding:
+            const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.green.shade50,
+          borderRadius:
+              BorderRadius.circular(15),
+          border: Border.all(
+            color: Colors.green.shade300,
+          ),
+        ),
+        child: Row(
+          children: [
+
+            const Icon(
+              Icons.eco,
+              color: Colors.green,
+              size: 28,
+            ),
+
+            const SizedBox(width: 10),
+
+            const Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+
+                  Text(
+                    '🌿 Native Species Highlight',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight:
+                          FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+
+                  SizedBox(height: 3),
+
+                  Text(
+                    'A native/local-focus species '
+                    'for the project biodiversity '
+                    'experience.',
+                    style: TextStyle(
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // --------------------------------------------------------------
+    // NON-NATIVE / GENERAL PLANT
+    // --------------------------------------------------------------
+
+    return Container(
+      width: double.infinity,
+      margin:
+          const EdgeInsets.only(bottom: 12),
+      padding:
+          const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.blueGrey.shade50,
+        borderRadius:
+            BorderRadius.circular(15),
+      ),
+      child: const Row(
+        children: [
+
+          Icon(
+            Icons.public,
+            color: Colors.blueGrey,
+          ),
+
+          SizedBox(width: 10),
+
+          Expanded(
+            child: Text(
+              'Biodiversity information available '
+              'through the botanical knowledge base.',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight:
+                    FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // ================================================================
   // PLANT IDENTIFICATION CARD
   // ================================================================
 
   Widget _buildPlantIdentificationCard() {
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding:
+          const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
         color: Colors.white,
@@ -524,10 +766,16 @@ class _CameraScreenState
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
 
           // --------------------------------------------------------
-          // CONFIDENCE
+          // NATIVE SPECIES FEATURE
+          // --------------------------------------------------------
+
+          _buildBiodiversityHighlight(),
+
+          // --------------------------------------------------------
+          // IDENTIFICATION CONFIDENCE
           // --------------------------------------------------------
 
           Text(
@@ -548,22 +796,21 @@ class _CameraScreenState
           const SizedBox(height: 15),
 
           // --------------------------------------------------------
-          // ASK AI BUTTON
+          // ASK AI
           // --------------------------------------------------------
 
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child:
+                ElevatedButton.icon(
               onPressed: () {
                 setState(() {
                   showQuestionBox = true;
                 });
               },
-
               icon: const Icon(
                 Icons.auto_awesome,
               ),
-
               label: const Text(
                 'Ask Botanical AI',
               ),
@@ -578,7 +825,8 @@ class _CameraScreenState
 
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton(
+            child:
+                OutlinedButton(
               onPressed: _resetScan,
               child: const Text(
                 'Scan Another Plant',
@@ -590,14 +838,15 @@ class _CameraScreenState
     );
   }
 
-
   // ================================================================
-  // BOTANICAL AI QUESTION BOX
+  // QUESTION BOX
   // ================================================================
 
   Widget _buildQuestionBox() {
+
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding:
+          const EdgeInsets.all(15),
 
       decoration: BoxDecoration(
         color: Colors.white,
@@ -651,9 +900,8 @@ class _CameraScreenState
                     showQuestionBox = false;
                   });
                 },
-                icon: const Icon(
-                  Icons.close,
-                ),
+                icon:
+                    const Icon(Icons.close),
               ),
             ],
           ),
@@ -661,11 +909,12 @@ class _CameraScreenState
           const SizedBox(height: 5),
 
           // --------------------------------------------------------
-          // IDENTIFIED PLANT
+          // PLANT
           // --------------------------------------------------------
 
           Text(
-            'Asking about: $identifiedPlantName',
+            'Asking about: '
+            '${identifiedPlantName ?? ''}',
             style: const TextStyle(
               fontSize: 14,
               fontWeight:
@@ -704,9 +953,7 @@ class _CameraScreenState
               border:
                   OutlineInputBorder(
                 borderRadius:
-                    BorderRadius.circular(
-                        15),
-
+                    BorderRadius.circular(15),
                 borderSide:
                     BorderSide.none,
               ),
@@ -741,14 +988,15 @@ class _CameraScreenState
     );
   }
 
-
   // ================================================================
-  // BOTANICAL AI ANSWER CARD
+  // AI ANSWER CARD
   // ================================================================
 
   Widget _buildAIAnswerCard() {
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding:
+          const EdgeInsets.all(20),
 
       decoration: BoxDecoration(
         color: Colors.white,
@@ -850,10 +1098,7 @@ class _CameraScreenState
           const SizedBox(height: 5),
 
           // --------------------------------------------------------
-          // GROUNDED STATUS
-          //
-          // THIS IS STILL FROM YOUR BOTANICAL AI.
-          // We did NOT replace it with Pl@ntNet confidence.
+          // GROUNDING
           // --------------------------------------------------------
 
           Text(
@@ -876,7 +1121,7 @@ class _CameraScreenState
           const SizedBox(height: 15),
 
           // --------------------------------------------------------
-          // ASK ANOTHER QUESTION
+          // ASK ANOTHER
           // --------------------------------------------------------
 
           SizedBox(
@@ -911,7 +1156,8 @@ class _CameraScreenState
 
             child:
                 OutlinedButton(
-              onPressed: _resetScan,
+              onPressed:
+                  _resetScan,
 
               child: const Text(
                 'Scan Another Plant',
@@ -923,20 +1169,17 @@ class _CameraScreenState
     );
   }
 
-
   // ================================================================
   // ASK BOTANICAL AI
   // ================================================================
 
   Future<void> _askBotanicalAI() async {
+
     final question =
         questionController.text.trim();
 
-    // --------------------------------------------------------------
-    // CHECK QUESTION
-    // --------------------------------------------------------------
-
     if (question.isEmpty) {
+
       ScaffoldMessenger.of(context)
           .showSnackBar(
         const SnackBar(
@@ -949,11 +1192,8 @@ class _CameraScreenState
       return;
     }
 
-    // --------------------------------------------------------------
-    // CHECK THAT A PLANT WAS IDENTIFIED
-    // --------------------------------------------------------------
-
     if (identifiedPlantName == null) {
+
       ScaffoldMessenger.of(context)
           .showSnackBar(
         const SnackBar(
@@ -971,10 +1211,6 @@ class _CameraScreenState
     });
 
     try {
-
-      // IMPORTANT:
-      // This goes to YOUR Flask Botanical AI,
-      // NOT Pl@ntNet.
 
       final result =
           await askBotanicalAI(
@@ -1009,12 +1245,12 @@ class _CameraScreenState
     }
   }
 
-
   // ================================================================
-  // TAKE PHOTO + IDENTIFY WITH PL@NTNET
+  // TAKE PHOTO + IDENTIFY
   // ================================================================
 
   Future<void> _takePhoto() async {
+
     try {
 
       setState(() {
@@ -1029,7 +1265,7 @@ class _CameraScreenState
           await controller.takePicture();
 
       // ------------------------------------------------------------
-      // SEND PHOTO TO PL@NTNET
+      // PLANTNET IDENTIFICATION
       // ------------------------------------------------------------
 
       final result =
@@ -1039,11 +1275,77 @@ class _CameraScreenState
 
       if (!mounted) return;
 
-      // ------------------------------------------------------------
-      // SAVE IDENTIFICATION
-      // ------------------------------------------------------------
+      // ============================================================
+      // GAMIFIED PLANT DISCOVERY
+      // ============================================================
+
+      final canonicalName =
+          normalizePlantName(
+        result.name,
+      );
+
+      final discoveryKey =
+          canonicalName.toLowerCase();
+
+      final isNewDiscovery =
+          !discoveredPlants.contains(
+        discoveryKey,
+      );
+
+      if (isNewDiscovery) {
+
+        discoveredPlants.add(
+          discoveryKey,
+        );
+
+        discoveryCount++;
+
+        // ----------------------------------------------------------
+        // BADGES
+        // ----------------------------------------------------------
+
+        String? badgeMessage;
+
+        if (discoveryCount == 3) {
+
+          badgeMessage =
+              '🏆 Explorer Badge unlocked!';
+
+        } else if (discoveryCount == 5) {
+
+          badgeMessage =
+              '🌿 Biodiversity Explorer Badge unlocked!';
+
+        } else if (discoveryCount == 7) {
+
+          badgeMessage =
+              '🌎 Field Botanist Badge unlocked!';
+        }
+
+        if (badgeMessage != null) {
+
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) {
+
+            if (!mounted) return;
+
+            ScaffoldMessenger.of(context)
+                .showSnackBar(
+              SnackBar(
+                content:
+                    Text(badgeMessage!),
+              ),
+            );
+          });
+        }
+      }
+
+      // ============================================================
+      // SAVE RESULT
+      // ============================================================
 
       setState(() {
+
         identifiedPlant = result;
 
         identifiedPlantName =
@@ -1075,12 +1377,12 @@ class _CameraScreenState
     }
   }
 
-
   // ================================================================
-  // RESET EVERYTHING AND SCAN ANOTHER PLANT
+  // RESET
   // ================================================================
 
   void _resetScan() {
+
     setState(() {
 
       identifiedPlant = null;
