@@ -221,7 +221,7 @@
       "Avoid unnecessary removal from natural habitats"
     ],
     "interesting_facts": [
-      "Water hyssop is also commonly known as water hyssop.",
+      "Water hyssop is also commonly known as Brahmi.",
       "It is adapted to growing in wet and waterlogged environments.",
       "Water hyssop has a long history of traditional use in South Asia."
     ]
@@ -262,6 +262,44 @@
       "Sandalwood is valued for the distinctive fragrance of its heartwood.",
       "Sandalwood trees are traditionally associated with India and South Asia.",
       "Santalum album is a hemiparasitic plant and obtains some resources through connections with other plants."
+    ]
+  },
+
+  "sunflower": {
+    "common_name": "Sunflower",
+    "scientific_name": "Helianthus annuus",
+    "family": "Asteraceae",
+    "native_region": "North America",
+    "description": "Sunflower is a fast-growing annual plant known for its large flower heads and tall upright stems. It is widely cultivated for its seeds and as an ornamental plant.",
+    "characteristics": [
+      "Tall annual herb with an upright stem",
+      "Large broad leaves with a rough texture",
+      "Large flower heads with yellow ray florets",
+      "Produces edible seeds in the central flower head"
+    ],
+    "habitat": "Sunny open areas, agricultural fields, gardens, grasslands, and other well-drained environments.",
+    "ecological_importance": [
+      "Provides nectar and pollen for bees and other insects",
+      "Seeds provide food for birds and other animals",
+      "Contributes to plant diversity in agricultural and garden environments"
+    ],
+    "biodiversity_role": "Sunflowers provide important floral resources for pollinators and their seeds can serve as a food source for birds and other wildlife.",
+    "conservation_status": "Not generally considered a globally threatened species.",
+    "threats": [
+      "Loss of suitable growing environments",
+      "Pest and disease pressure",
+      "Reduction in pollinator-friendly habitats"
+    ],
+    "conservation_actions": [
+      "Maintain sunflower plants in gardens and suitable agricultural areas",
+      "Support pollinator-friendly planting",
+      "Avoid unnecessary pesticide use around flowering plants",
+      "Maintain diverse plant habitats"
+    ],
+    "interesting_facts": [
+      "Sunflowers belong to the daisy family, Asteraceae.",
+      "The central flower head is actually made up of many individual flowers.",
+      "Sunflower seeds are widely used as food and for producing vegetable oil."
     ]
   }
 }
